@@ -24,6 +24,7 @@ token_re=re.compile(r'#\w+|@\w|https?://[\w/_.-]+|\w+',re.UNICODE)
 yat_lexicon=dict([e[:-1].split('\t') for e in gzip.open('yat-lexicon/apertium-yat.gz')])
 kh_lexicon=dict([k[:-1].split('\t') for k in gzip.open('kh-lexicon/apertium-kh.gz')])
 hdrop_lexicon=dict([h[:-1].split('\t') for h in gzip.open('drop-lexicon/apertium-hdrop.gz')])
+presverbs=dict([e[:-1].split('\t') for e in gzip.open('presverbs/presverbs.gz')])
 
 #modals=codecs.open('modals/modals.txt', 'r', 'utf8')
 #for modalverb in modals:
@@ -38,52 +39,77 @@ stems_dict=defaultdict(int)
 stems=codecs.open('ir-ov-is/inter_stem_lex.txt', 'r', 'utf8')
 for stem in stems:
     stems_dict[stem[:-1]]+=1
+ch_dict=defaultdict(int)
+for ch in gzip.open('ch/ch.gz'):
+    ch_dict[ch[:-1]]+=1
+inf_dict=defaultdict(int)
+for inf in gzip.open('inf/inf.gz'):
+    inf_dict[inf[:-1]]+=1
+syntinf_dict=defaultdict(int)
+for syntinf in gzip.open('syntinf/syntinf.gz'):
+    syntinf_dict[syntinf[:-1]]+=1
+verbs_dict=defaultdict(int)
+for verb in gzip.open('verbs/verbs.gz'):
+    verbs_dict[verb[:-1]]+=1
+genitiv_og_dict=defaultdict(int)
+for genitiv_og in gzip.open('genitiv_og/genitiv_og.gz'):
+    genitiv_og_dict[genitiv_og[:-1]]+=1
 
-genitivoga_re=re.compile(r'og\t\w+\t\w+(m|n)sg(y)?$',re.UNICODE)
-ch_dict,infverbs,syntinfverbs,modalsdict,genitiv_og = defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int)
-presverbs=defaultdict(unicode)
+#with gzip.open('genitiv_og/genitiv_og.gz') as gen:
+ #   for line in gen:
+  #      genitiv_og_dict[line[:-1]]+=1
+#dict([stem for stem in ['he', 'ho']])
+
+#ch=gzip.open('ch.gz','r')
+#infverbs=gzip.open('inf.gz','r')
+#syntinfverbs=gzip.open('syntinf.gz','r')
+#genitiv_og=gzip.open('genitiv_og.gz','r')
+#verbs=gzip.open('verbs.gz', 'r')
+
+#genitivoga_re=re.compile(r'og\t\w+\t\w+(m|n)sg(y)?$',re.UNICODE)
+#ch_dict,infverbs,syntinfverbs,modalsdict,genitiv_og = defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int)
+#presverbs=defaultdict(unicode)
 
 
-for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
-  token,lemma,tag=line.decode('utf8').split('\t')[:3]
-  if u"ć" or u"č" in token:
-      ch_dict[token]+=1
-  ## if infinitiv with -i
-  if tag == u'Vmn':
-      tokennodia = remove_diacritics(token)
-      infverbs[tokennodia]+=1
-  ## if presäns:
-  elif tag.startswith(u"Vmr"):
-      tokennodia = remove_diacritics(token)
-      presverbs[tokennodia]+=tag
-  ## if genitiv ending with og
-  elif token.endswith(u"og") and u"msgy" in tag or u"nsgy" in tag:
-      # pidjevi +  zamjenice (onog, tog, itd)
-      # ako samo pridjevi: add y poslije (m|n)sg (slijepoga	slijep	Agpmsgy)
-      # problem "Iz nekog švajcarskog sela bi bilo korektnije vs lako je naci nekog sa kim cete ziveti tesko je pronaci nekog u kome cete ziveti"
-      tokennodia = remove_diacritics(token)
-      genitiv_og[tokennodia]+=1
-
-for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
-  token,lemma,tag=line.decode('utf8').split('\t')[:3]
-  if u"ć" or u"č" in token:
-      ch_dict[token]+=1
-  ## if infinitiv with -i
-  if tag == u'Vmn':
-      tokennodia = remove_diacritics(token)
-      infverbs[tokennodia]+=1
-  ## if synt.infinitiv
-  elif tag.startswith(u'Vmf'):
-      tokennodia = remove_diacritics(token)
-      syntinfverbs[tokennodia]+=1
-  ## if presäns:
-  elif tag.startswith(u"Vmr"):
-      tokennodia = remove_diacritics(token)
-      presverbs[tokennodia]+=tag
-  ## if genitiv ending with og
-  elif token.endswith(u"og") and u"msg" in tag or u"nsg" in tag:
-      tokennodia = remove_diacritics(token)
-      genitiv_og[tokennodia]+=1
+# for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
+#   token,lemma,tag=line.decode('utf8').split('\t')[:3]
+#   if u"ć" or u"č" in token:
+#       ch_dict[token]+=1
+#   ## if infinitiv with -i
+#   if tag == u'Vmn':
+#       tokennodia = remove_diacritics(token)
+#       infverbs[tokennodia]+=1
+#   ## if presäns:
+#   elif tag.startswith(u"Vmr"):
+#       tokennodia = remove_diacritics(token)
+#       presverbs[tokennodia]+=tag
+#   ## if genitiv ending with og
+#   elif token.endswith(u"og") and u"msgy" in tag or u"nsgy" in tag:
+#       # ako samo pridjevi: add y poslije (m|n)sg (slijepoga	slijep	Agpmsgy)
+#       # problem "Iz nekog švajcarskog sela bi bilo korektnije vs lako je naci nekog sa kim cete ziveti tesko je pronaci nekog u kome cete ziveti"
+#       tokennodia = remove_diacritics(token)
+#       genitiv_og[tokennodia]+=1
+#
+# for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
+#   token,lemma,tag=line.decode('utf8').split('\t')[:3]
+#   if u"ć" or u"č" in token:
+#       ch_dict[token]+=1
+#   ## if infinitiv with -i
+#   if tag == u'Vmn':
+#       tokennodia = remove_diacritics(token)
+#       infverbs[tokennodia]+=1
+#   ## if synt.infinitiv
+#   elif tag.startswith(u'Vmf'):
+#       tokennodia = remove_diacritics(token)
+#       syntinfverbs[tokennodia]+=1
+#   ## if presäns:
+#   elif tag.startswith(u"Vmr"):
+#       tokennodia = remove_diacritics(token)
+#       presverbs[tokennodia]+=tag
+#   ## if genitiv ending with og
+#   elif token.endswith(u"og") and u"msg" in tag or u"nsg" in tag:
+#       tokennodia = remove_diacritics(token)
+#       genitiv_og[tokennodia]+=1
 
 
 #TODO: rdrop lexicon is to be extended (apertium is not a good resource for this)
@@ -178,6 +204,8 @@ def rdrop(text):
     return 'NA'
   else:
     return distr.keys()[0]
+
+
 
 def c_ch(text):
     # TODO IF BOTH CONDITIONS ARE TRUE
@@ -301,10 +329,10 @@ def inf_without_i(text):
   for token in tokenize(text_withoutdia):
       if token.endswith(u"c") or token.endswith(u"t"):
           mod_token = token+u"i"
-          if mod_token in infverbs:
+          if mod_token in inf_dict:
               distr_no_i[mod_token]+=1
       elif token.endswith(u"ci") or token.endswith(u"ti"):
-          if token in infverbs:
+          if token in inf_dict:
               distr_i[token]+=1
   if len(distr_no_i)>=1:
     return "inf_without_i"
@@ -324,10 +352,10 @@ def synt_future(text):
   nosyntend_re=re.search(ur'\s(\w+(t|c)) (cu|ces|ce|cemo|cete|ce)\s',text_withoutdia, re.UNICODE)
 
   if syntend_re:
-      if syntend_re.group(1) in syntinfverbs:
+      if syntend_re.group(1) in syntinf_dict:
           distrsynt[syntend_re.group(1)]+=1
   elif nosyntend_re:
-      if nosyntend_re.group(1) in infverbs or nosyntend_re.group(1)+u"i" in infverbs:
+      if nosyntend_re.group(1) in inf_dict or nosyntend_re.group(1)+u"i" in inf_dict:
           distrnosynt[nosyntend_re.group(1)]+=1
   if len(distrsynt)>=1:
     return "synt_inf"
@@ -339,8 +367,14 @@ def synt_future(text):
 # – da + present tense ####### djelom vec u treba da
 # sad će da ti uputi otvoreno pismo pa ćeš da vidiš
 
-def da_present(text):
 
+def da(text):
+    if "da" in tokenize(text.lower()):
+        return "da"
+    else:
+        return "NA"
+
+def da_present(text):
     text_withoutdia = remove_diacritics(text).lower()
     if "da" in tokenize(text_withoutdia)[1:-2]:
         dasent = tokenize(text_withoutdia)
@@ -424,7 +458,7 @@ out=gzip.open('hrsrTweets.var.gz','w')
 for line in gzip.open('hrsrTweets.gz'):
     tid,user,time,lang,lon,lat,text=line[:-1].decode('utf8').split('\t')
     #print hdrop(text)#, #text.encode("utf8")
-    out.write(line[:-1]+"\t"+clean(text,lang)+'\t'+yat(text)+'\t'+kh(text)+"\t"+hdrop(text)+"\t"+rdrop(text)+"\t"+c_ch(text)+"\t"+sa_s(text)+"\t"+tko_ko(text)+"\t"+sta_sto(text)+"\t"+da_je_li(text)+"\t"+usprkos(text)+"\t"+treba_da(text)+"\t"+inf_without_i(text)+"\t"+synt_future(text)+"\t"+da_present(text)+"\t"+genitiva(text)+"\t"+ir_ov_is(text)+'\n')
+    out.write(line[:-1]+"\t"+clean(text,lang)+'\t'+yat(text)+'\t'+kh(text)+"\t"+hdrop(text)+"\t"+rdrop(text)+"\t"+c_ch(text)+"\t"+sa_s(text)+"\t"+tko_ko(text)+"\t"+sta_sto(text)+"\t"+da_je_li(text)+"\t"+usprkos(text)+"\t"+treba_da(text)+"\t"+inf_without_i(text)+"\t"+synt_future(text)+"\t"+da(text)+"\t"+da_present(text)+"\t"+genitiva(text)+"\t"+ir_ov_is(text)+'\n')
 
 
 
