@@ -3,9 +3,9 @@
 import gzip
 import sys
 
-lexicon_dirs='../lexicons/apertium/'
-
-dia={u'č':'c',u'š':'s',u'ž':'z',u'ć':'c'}
+lexicon_dirs='../../lexicons/apertium'
+dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'd',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'D'}
+#dia={u'č':'c',u'š':'s',u'ž':'z',u'ć':'c', u'đ':'d'}
 def remove_diacritics(token):
   result=''
   for char in token:
@@ -23,7 +23,7 @@ for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
     hr[token]=set()
   hr[token].add(tag)
 log.write(repr(hr.items()[:10])+'\n')
-for line in gzip.open(lexicon_dirs+'/apertium/apertium-hbs.hbs_SR_purist.mte.gz'):
+for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
   token,lemma,tag=line.decode('utf8').split('\t')[:3]
   if token.lower()!=token:
     continue
@@ -36,7 +36,8 @@ for index,token in enumerate(hr):
     log.write(str(index+1)+' od '+str(len(hr))+'\n')
   ijee=token.replace('ije','e')
   jee=token.replace('je','e')
-  for mod_token in (ijee,jee):
+  ijej=token.replace('ij','ej')
+  for mod_token in (ijee,jee,ijej):
     if token==mod_token:
       continue
     if mod_token in sr:
