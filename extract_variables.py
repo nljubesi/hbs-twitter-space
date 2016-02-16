@@ -4,13 +4,13 @@
 ## TODO if sentence contains both features
 ## – infinitive / verb ratio
 ## – ”da”
-#£ – te / pa, pa relative frequency (difficult because of te personal pronoun)
 
-
+from __future__ import division
 import gzip
 import re
 import codecs
 from collections import defaultdict
+
 
 dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'd',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'D'}
 def remove_diacritics(text):
@@ -54,62 +54,12 @@ for verb in gzip.open('verbs/verbs.gz'):
 genitiv_og_dict=defaultdict(int)
 for genitiv_og in gzip.open('genitiv_og/genitiv_og.gz'):
     genitiv_og_dict[genitiv_og[:-1]]+=1
-
-#with gzip.open('genitiv_og/genitiv_og.gz') as gen:
- #   for line in gen:
-  #      genitiv_og_dict[line[:-1]]+=1
-#dict([stem for stem in ['he', 'ho']])
-
-#ch=gzip.open('ch.gz','r')
-#infverbs=gzip.open('inf.gz','r')
-#syntinfverbs=gzip.open('syntinf.gz','r')
-#genitiv_og=gzip.open('genitiv_og.gz','r')
-#verbs=gzip.open('verbs.gz', 'r')
-
-#genitivoga_re=re.compile(r'og\t\w+\t\w+(m|n)sg(y)?$',re.UNICODE)
-#ch_dict,infverbs,syntinfverbs,modalsdict,genitiv_og = defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int)
-#presverbs=defaultdict(unicode)
+ist_dict = defaultdict(int)
+for ist in gzip.open('ist/ist.gz'):
+    ist_dict[ist[:-1]]+=1
 
 
-# for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
-#   token,lemma,tag=line.decode('utf8').split('\t')[:3]
-#   if u"ć" or u"č" in token:
-#       ch_dict[token]+=1
-#   ## if infinitiv with -i
-#   if tag == u'Vmn':
-#       tokennodia = remove_diacritics(token)
-#       infverbs[tokennodia]+=1
-#   ## if presäns:
-#   elif tag.startswith(u"Vmr"):
-#       tokennodia = remove_diacritics(token)
-#       presverbs[tokennodia]+=tag
-#   ## if genitiv ending with og
-#   elif token.endswith(u"og") and u"msgy" in tag or u"nsgy" in tag:
-#       # ako samo pridjevi: add y poslije (m|n)sg (slijepoga	slijep	Agpmsgy)
-#       # problem "Iz nekog švajcarskog sela bi bilo korektnije vs lako je naci nekog sa kim cete ziveti tesko je pronaci nekog u kome cete ziveti"
-#       tokennodia = remove_diacritics(token)
-#       genitiv_og[tokennodia]+=1
-#
-# for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
-#   token,lemma,tag=line.decode('utf8').split('\t')[:3]
-#   if u"ć" or u"č" in token:
-#       ch_dict[token]+=1
-#   ## if infinitiv with -i
-#   if tag == u'Vmn':
-#       tokennodia = remove_diacritics(token)
-#       infverbs[tokennodia]+=1
-#   ## if synt.infinitiv
-#   elif tag.startswith(u'Vmf'):
-#       tokennodia = remove_diacritics(token)
-#       syntinfverbs[tokennodia]+=1
-#   ## if presäns:
-#   elif tag.startswith(u"Vmr"):
-#       tokennodia = remove_diacritics(token)
-#       presverbs[tokennodia]+=tag
-#   ## if genitiv ending with og
-#   elif token.endswith(u"og") and u"msg" in tag or u"nsg" in tag:
-#       tokennodia = remove_diacritics(token)
-#       genitiv_og[tokennodia]+=1
+## problem "Iz nekog švajcarskog sela bi bilo korektnije vs lako je naci nekog sa kim cete ziveti tesko je pronaci nekog u kome cete ziveti"
 
 
 #TODO: rdrop lexicon is to be extended (apertium is not a good resource for this)
@@ -204,7 +154,6 @@ def rdrop(text):
     return 'NA'
   else:
     return distr.keys()[0]
-
 
 
 def c_ch(text):
@@ -317,6 +266,26 @@ def treba_da(text):
     else:
         return "NA"
 
+def ist(text):
+    distr_ist,distr_ista={},{}
+    for token in tokenize(text.lower()):
+        if token.endswith("ista"):
+            if token[:-1] in ist_dict:
+                distr_ista[token]=1
+        elif token.endswith("ist"):
+            if token in ist_dict:
+                distr_ist[token]=1
+    if len(distr_ist)==1:
+        return "ist"
+    elif len(distr_ista)==1:
+        return "ista"
+    else:
+        return "NA"
+
+
+
+
+
 #---End Lexical Features -----------------------------------------------------------------------------------------------
 
 #---Start Morpho-Synt. Features ----------------------------------------------------------------------------------------
@@ -364,8 +333,7 @@ def synt_future(text):
   else:
     return "NA"
 
-# – da + present tense ####### djelom vec u treba da
-# sad će da ti uputi otvoreno pismo pa ćeš da vidiš
+
 
 
 def da(text):
@@ -448,6 +416,19 @@ def ir_ov_is(text):
     else:
         return "NA"
 
+# infinite verb ratio
+def inf_verb_ratio(text):
+    nr_verbs = 0
+    nr_inf = 0
+    for token in tokenize(text.lower()):
+        if token in verbs_dict:
+            nr_verbs+=1
+            if token in inf_dict:
+                nr_inf+=1
+    if nr_verbs>0:
+        return round(nr_inf/nr_verbs,2)
+    else:
+        return "NA"
 
 
 #---End Morpho-Synt. Features ------------------------------------------------------------------------------------------
@@ -457,9 +438,6 @@ def ir_ov_is(text):
 out=gzip.open('hrsrTweets.var.gz','w')
 for line in gzip.open('hrsrTweets.gz'):
     tid,user,time,lang,lon,lat,text=line[:-1].decode('utf8').split('\t')
-    #print hdrop(text)#, #text.encode("utf8")
-    out.write(line[:-1]+"\t"+clean(text,lang)+'\t'+yat(text)+'\t'+kh(text)+"\t"+hdrop(text)+"\t"+rdrop(text)+"\t"+c_ch(text)+"\t"+sa_s(text)+"\t"+tko_ko(text)+"\t"+sta_sto(text)+"\t"+da_je_li(text)+"\t"+usprkos(text)+"\t"+treba_da(text)+"\t"+inf_without_i(text)+"\t"+synt_future(text)+"\t"+da(text)+"\t"+da_present(text)+"\t"+genitiva(text)+"\t"+ir_ov_is(text)+'\n')
-
-
-
+#    print ist(text), text.encode("utf8")
+    out.write(line[:-1]+"\t"+clean(text,lang)+'\t'+yat(text)+'\t'+kh(text)+"\t"+hdrop(text)+"\t"+rdrop(text)+"\t"+c_ch(text)+"\t"+sa_s(text)+"\t"+tko_ko(text)+"\t"+sta_sto(text)+"\t"+da_je_li(text)+"\t"+usprkos(text)+"\t"+treba_da(text)+"\t"+inf_without_i(text)+"\t"+synt_future(text)+"\t"+da(text)+"\t"+da_present(text)+"\t"+genitiva(text)+"\t"+ir_ov_is(text)+"\t"+str(inf_verb_ratio(text))+"\t"+ist(text)+'\n')
 out.close()
