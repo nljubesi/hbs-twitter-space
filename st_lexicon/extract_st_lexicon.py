@@ -42,13 +42,14 @@ for token in hr:
            log.write(repr('candidate '+token+' '+mod_token)+'\n')
            if len(hr[token].intersection(sr[mod_token]))>0:
                if mod_token not in hr:
-                   log.write('not in hr\n')
-                   sys.stdout.write(token.encode('utf8')+'\tć\n')
-                   sys.stdout.write(mod_token.encode('utf8')+'\tšt\n')
+                   #log.write('not in hr\n')
                    dia_token=remove_diacritics(token)
-                   if dia_token!=token:
-                       dia_mod_token=remove_diacritics(mod_token)
-                       if dia_token not in hr and dia_mod_token not in hr:
-                           log.write('dia not in lexicons\n')
-                           sys.stdout.write(dia_token.encode('utf8')+'\tć\n')
-                           sys.stdout.write(dia_mod_token.encode('utf8')+'\tšt\n')
+                   dia_mod_token=remove_diacritics(mod_token)
+                   sys.stdout.write(dia_token.encode('utf8')+'\tć\n')
+                   sys.stdout.write(dia_mod_token.encode('utf8')+'\tšt\n')
+                   #if dia_token!=token:
+                   #    dia_mod_token=remove_diacritics(mod_token)
+                   #    if dia_token not in hr and dia_mod_token not in hr:
+                   #        log.write('dia not in lexicons\n')
+                   #        sys.stdout.write(dia_token.encode('utf8')+'\tć\n')
+                   #        sys.stdout.write(dia_mod_token.encode('utf8')+'\tšt\n')

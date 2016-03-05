@@ -40,7 +40,7 @@ for lemma in hr:
         if mod_lemma_ovati in sr: # mod_lemma_isati in sr:
            stem_dict[lemma[:-5]]+=1
            stem_dict[mod_lemma_ovati[:-5]]+=1
-           log.write(repr('candidate '+lemma+' '+mod_lemma_ovati)+'\n')
+           #log.write(repr('candidate '+lemma+' '+mod_lemma_ovati)+'\n')
            dia_lemma=remove_diacritics(lemma)
            if dia_lemma!=lemma:
                dia_mod_lemma_ovati=remove_diacritics(mod_lemma_ovati)
@@ -50,13 +50,13 @@ for lemma in hr:
 
         if mod_lemma_isati in sr: # mod_lemma_isati in sr:
            stem_dict[mod_lemma_isati[:-5]]+=1
-           log.write(repr('candidate '+lemma+' '+mod_lemma_isati)+'\n')
+           #log.write(repr('candidate '+lemma+' '+mod_lemma_isati)+'\n')
            dia_lemma=remove_diacritics(lemma)
            if dia_lemma!=lemma:
                dia_mod_lemma_isati=remove_diacritics(mod_lemma_isati)
                if dia_lemma not in hr and dia_mod_lemma_isati not in hr:# and dia_mod_lemma_isati not in hr:
                    log.write('dia not in lexicons\n')
-                   stem_dict[mod_lemma_isati[:-5]]+=1
+                   stem_dict[dia_mod_lemma_isati[:-5]]+=1
 
 for stem in stem_dict:
     inter_stem_lex.write(stem.encode('utf8')+'\n')

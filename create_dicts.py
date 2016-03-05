@@ -3,8 +3,7 @@
 
 
 import gzip
-import re
-from collections import defaultdict
+
 
 dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'd',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'D'}
 def remove_diacritics(text):
@@ -18,7 +17,7 @@ lexicon_dirs='../lexicons/apertium'
 #genitivoga_re=re.compile(r'og\t\w+\t\w+(m|n)sg(y)?$',re.UNICODE)
 presverbs=gzip.open('presverbs/presverbs.gz','w')
 ch=gzip.open('ch/ch.gz','w')
-infverbs =gzip.open('inf/inf.gz','w')
+infverbs=gzip.open('inf/inf.gz','w')
 syntinfverbs = gzip.open('syntinf/syntinf.gz','w')
 genitiv_og=gzip.open('genitiv_og/genitiv_og.gz','w')
 verbs=gzip.open('verbs/verbs.gz', 'w')
