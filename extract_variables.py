@@ -12,6 +12,7 @@ import re
 import codecs
 from collections import defaultdict
 
+
 dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'd',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'D'}
 def remove_diacritics(text):
   result=''
@@ -89,7 +90,6 @@ for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
 #TODO: rdrop lexicon is to be extended (apertium is not a good resource for this)
 #TODO: ldrop lexicon is to be made (apertium is not a good resource for this)
 
-
 def tokenize(text):
   return token_re.findall(text)
 
@@ -139,13 +139,18 @@ def clean(text,lang):
 #---Start Phonetical Features-------------------------------------------------------------------------------------------
 
 def yat(text):
-  # TODO IF BOTH CONDITIONS ARE TRUE
   distr={}
   for token in tokenize(text.lower()):
     if token in yat_lexicon:
       distr[yat_lexicon[token]]=distr.get(yat_lexicon[token],0)+1
-  if len(distr)==0 or len(distr)==2:
+  if len(distr)==0:
     return 'NA'
+  elif len(distr)==2:
+    sdistr=sorted(distr.items(),key=lambda x:-x[1])
+    if sdistr[0][1]==sdistr[1][1]:
+        return 'NA'
+    else:
+        return sdistr[0][0]
   else:
     return distr.keys()[0]
 
@@ -424,7 +429,7 @@ out=gzip.open('hrsrTweets.var.gz','w')
 for line in gzip.open('hrsrTweets.gz'):
     tid,user,time,lang,lon,lat,text=line[:-1].decode('utf8').split('\t')
     #print hdrop(text)#, #text.encode("utf8")
-    out.write(line[:-1]+"\t"+clean(text,lang)+'\t'+yat(text)+'\t'+kh(text)+"\t"+hdrop(text)+"\t"+rdrop(text)+"\t"+c_ch(text)+"\t"+sa_s(text)+"\t"+tko_ko(text)+"\t"+sta_sto(text)+"\t"+da_je_li(text)+"\t"+usprkos(text)+"\t"+treba_da(text)+"\t"+inf_without_i(text)+"\t"+synt_future(text)+"\t"+da_present(text)+"\t"+genitiva(text)+"\t"+ir_ov_is(text)+'\n')
+    out.write(line[:-1]+"\t"+clean(text,lang)+'\t'+yat(text)+'\n')#+'\t'+kh(text)+"\t"+hdrop(text)+"\t"+rdrop(text)+"\t"+c_ch(text)+"\t"+sa_s(text)+"\t"+tko_ko(text)+"\t"+sta_sto(text)+"\t"+da_je_li(text)+"\t"+usprkos(text)+"\t"+treba_da(text)+"\t"+inf_without_i(text)+"\t"+synt_future(text)+"\t"+da_present(text)+"\t"+genitiva(text)+"\t"+ir_ov_is(text)+'\n')
 
 
 
