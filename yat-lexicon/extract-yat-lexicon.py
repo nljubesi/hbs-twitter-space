@@ -3,9 +3,10 @@
 import gzip
 import sys
 
-lexicon_dirs='../../reldi/reldi/lexicons/apertium/'
+lexicon_dirs='../../lexicons/apertium'
+dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'dj',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'DJ'}
+#dia={u'č':'c',u'š':'s',u'ž':'z',u'ć':'c', u'đ':'d'}
 
-dia={u'č':'c',u'š':'s',u'ž':'z',u'ć':'c',u'đ':'dj'}
 def remove_diacritics(token):
   result=''
   for char in token:
@@ -36,7 +37,8 @@ for index,token in enumerate(hr):
     log.write(str(index+1)+' od '+str(len(hr))+'\n')
   ijee=token.replace('ije','e')
   jee=token.replace('je','e')
-  for mod_token in (ijee,jee):
+  ijej=token.replace('ij','ej')
+  for mod_token in (ijee,jee,ijej):
     if token==mod_token:
       continue
     if mod_token in sr:
@@ -44,13 +46,17 @@ for index,token in enumerate(hr):
       if len(hr[token].intersection(sr[mod_token]))>0:
         if mod_token not in hr:
           log.write('not in hr\n')
-          sys.stdout.write(token.encode('utf8')+'\tje\n')
-          sys.stdout.write(mod_token.encode('utf8')+'\te\n')
+          #sys.stdout.write(token.encode('utf8')+'\tje\n')
+          #sys.stdout.write(mod_token.encode('utf8')+'\te\n')
           dia_token=remove_diacritics(token)
-          if dia_token!=token:
-            dia_mod_token=remove_diacritics(mod_token)
-            if dia_token not in hr and dia_mod_token not in hr:
-              log.write('dia not in lexicons\n')
-              sys.stdout.write(dia_token.encode('utf8')+'\tje\n')
-              sys.stdout.write(dia_mod_token.encode('utf8')+'\te\n')
-          break
+          dia_mod_token=remove_diacritics(mod_token)
+          sys.stdout.write(dia_token.encode('utf8')+'\tje\n')
+          sys.stdout.write(dia_mod_token.encode('utf8')+'\te\n')
+
+          #if dia_token!=token:
+          #  dia_mod_token=remove_diacritics(mod_token)
+          #  if dia_token not in hr and dia_mod_token not in hr:
+          #    log.write('dia not in lexicons\n')
+          #    sys.stdout.write(dia_token.encode('utf8')+'\tje\n')
+          #    sys.stdout.write(dia_mod_token.encode('utf8')+'\te\n')
+          #break

@@ -5,7 +5,7 @@ import sys
 
 lexicon_dirs='../../lexicons/apertium'
 
-dia={u'č':'c',u'š':'s',u'ž':'z',u'ć':'c', u'đ':'d'}
+dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'd',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'D'}
 def remove_diacritics(token):
   result=''
   for char in token:
@@ -42,13 +42,15 @@ for token in hr:
            log.write(repr('candidate '+token+' '+mod_token)+'\n')
            if len(hr[token].intersection(sr[mod_token]))>0:
                if mod_token not in hr:
-                   log.write('not in hr\n')
-                   sys.stdout.write(token.encode('utf8')+'\tk\n')
-                   sys.stdout.write(mod_token.encode('utf8')+'\th\n')
                    dia_token=remove_diacritics(token)
-                   if dia_token!=token:
-                       dia_mod_token=remove_diacritics(mod_token)
-                       if dia_token not in hr and dia_mod_token not in hr:
-                           log.write('dia not in lexicons\n')
-                           sys.stdout.write(dia_token.encode('utf8')+'\tk\n')
-                           sys.stdout.write(dia_mod_token.encode('utf8')+'\th\n')
+                   dia_mod_token=remove_diacritics(mod_token)
+                   #log.write('not in hr\n')
+                   sys.stdout.write(dia_token.encode('utf8')+'\tk\n')
+                   sys.stdout.write(dia_mod_token.encode('utf8')+'\th\n')
+                   #dia_token=remove_diacritics(token)
+                   #if dia_token!=token:
+                   #    dia_mod_token=remove_diacritics(mod_token)
+                   #    if dia_token not in hr and dia_mod_token not in hr:
+                   #        log.write('dia not in lexicons\n')
+                   #        sys.stdout.write(dia_token.encode('utf8')+'\tk\n')
+                   #        sys.stdout.write(dia_mod_token.encode('utf8')+'\th\n')
