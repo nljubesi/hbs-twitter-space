@@ -35,6 +35,63 @@ ist_dict={ist.rstrip("\n"):1 for ist in gzip.open('ist/ist.gz')}
 hrmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/hr_months.txt", "r", "utf8")]
 intmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/int_months.txt", "r", "utf8")]
 
+<<<<<<< HEAD
+=======
+genitivoga_re=re.compile(r'og\t\w+\t\w+(m|n)sg(y)?$',re.UNICODE)
+ch_dict,infverbs,syntinfverbs,modalsdict,genitiv_og = defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int),defaultdict(int)
+presverbs=defaultdict(unicode)
+
+
+for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
+  token,lemma,tag=line.decode('utf8').split('\t')[:3]
+  if u"ć" or u"č" in token:
+      ch_dict[token]+=1
+  ## if infinitiv with -i
+  if tag == u'Vmn':
+      tokennodia = remove_diacritics(token)
+      infverbs[tokennodia]+=1
+  ## if presäns:
+  elif tag.startswith(u"Vmr"):
+      tokennodia = remove_diacritics(token)
+      presverbs[tokennodia]+=tag
+  ## if genitiv ending with og
+  elif token.endswith(u"og") and u"msgy" in tag or u"nsgy" in tag:
+      # pidjevi +  zamjenice (onog, tog, itd)
+      # ako samo pridjevi: add y poslije (m|n)sg (slijepoga	slijep	Agpmsgy)
+      # problem "Iz nekog švajcarskog sela bi bilo korektnije vs lako je naci nekog sa kim cete ziveti tesko je pronaci nekog u kome cete ziveti"
+      tokennodia = remove_diacritics(token)
+      genitiv_og[tokennodia]+=1
+
+for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
+  token,lemma,tag=line.decode('utf8').split('\t')[:3]
+  if u"ć" or u"č" in token:
+      ch_dict[token]+=1
+  ## if infinitiv with -i
+  if tag == u'Vmn':
+      tokennodia = remove_diacritics(token)
+      infverbs[tokennodia]+=1
+  ## if synt.infinitiv
+  elif tag.startswith(u'Vmf'):
+      tokennodia = remove_diacritics(token)
+      syntinfverbs[tokennodia]+=1
+  ## if presäns:
+  elif tag.startswith(u"Vmr"):
+      tokennodia = remove_diacritics(token)
+      presverbs[tokennodia]+=tag
+  ## if genitiv ending with og
+  elif token.endswith(u"og") and u"msg" in tag or u"nsg" in tag:
+      tokennodia = remove_diacritics(token)
+      genitiv_og[tokennodia]+=1
+
+
+#TODO: rdrop lexicon is to be extended (apertium is not a good resource for this)
+#TODO: ldrop lexicon is to be made (apertium is not a good resource for this)
+#modals=codecs.open('modals/modals.txt', 'r', 'utf8')
+#for modalverb in modals:
+ #   modalverb = modalverb.rstrip("\n")
+ #   modalsdict[modalverb]+=1
+
+>>>>>>> 922610a8e0ae57c35ca058cfb8e08f10089f64af
 def tokenize(text):
   return token_re.findall(text)
 
@@ -84,13 +141,18 @@ def clean(text,lang):
 #---Start Phonetical Features-------------------------------------------------------------------------------------------
 
 def yat(text):
-  # TODO IF BOTH CONDITIONS ARE TRUE
   distr={}
   for token in tokenize(remove_diacritics(text).lower()):
     if token in yat_lexicon:
       distr[yat_lexicon[token]]=distr.get(yat_lexicon[token],0)+1
-  if len(distr)==0 or len(distr)==2:
+  if len(distr)==0:
     return 'NA'
+  elif len(distr)==2:
+    sdistr=sorted(distr.items(),key=lambda x:-x[1])
+    if sdistr[0][1]==sdistr[1][1]:
+        return 'NA'
+    else:
+        return sdistr[0][0]
   else:
     return distr.keys()[0]
 
@@ -547,8 +609,6 @@ def cyrillic(text):
         return "SR Cyrilic"
     else:
         return "Latin"
-
-
 
 t="\t"
 out=gzip.open('hrsrTweets.var.gz','w')

@@ -4,8 +4,9 @@ import gzip
 import sys
 
 lexicon_dirs='../../lexicons/apertium'
-dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'd',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'D'}
+dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'dj',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'DJ'}
 #dia={u'č':'c',u'š':'s',u'ž':'z',u'ć':'c', u'đ':'d'}
+
 def remove_diacritics(token):
   result=''
   for char in token:
