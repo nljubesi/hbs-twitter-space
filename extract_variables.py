@@ -19,45 +19,21 @@ def remove_diacritics(text):
 token_re=re.compile(r'#\w+|@\w|https?://[\w/_.-]+|\w+',re.UNICODE)
 yat_lexicon=dict([e[:-1].split('\t') for e in gzip.open('yat-lexicon/apertium-yat.gz')])
 kh_lexicon=dict([k[:-1].split('\t') for k in gzip.open('kh-lexicon/apertium-kh.gz')])
-hdrop_lexicon=dict([h[:-1].split('\t') for h in gzip.open('drop-lexicon/apertium-hdrop.gz')])
+hdrop_lexicon=dict([h[:-1].split('\t') for h in gzip.open('drop-lexicons/apertium-hdrop.gz')])
+rdrop_lexicon=dict([r[:-1].split('\t') for r in gzip.open('drop-lexicons/apertium-rdrop.gz')])
 presverbs=dict([pres[:-1].split('\t') for pres in gzip.open('presverbs/presverbs.gz')])
 st_lexicon=dict([st[:-1].split('\t') for st in gzip.open('st_lexicon/apertium_st.gz')])
 diftong_lexicon=dict([diftong[:-1].split('\t') for diftong in gzip.open('diftong_v/apertium_diftong_lexicon.gz')])
-
-rdrop_lexicon={}
-for x in gzip.open('drop-lexicon/apertium-rdrop.gz'):
-    rdrop_lexicon[remove_diacritics(x[:-1].split()[0].decode('utf8'))]=x[:-1].split()[1]
-
-stems_dict=defaultdict(int)
-stems=codecs.open('ir-ov-is/inter_stem_lex.txt', 'r', 'utf8')
-for stem in stems:
-    stems_dict[stem[:-1]]+=1
-ch_dict=defaultdict(int)
-for ch in gzip.open('ch/ch.gz'):
-    ch_dict[ch[:-1]]+=1
-inf_dict=defaultdict(int)
-for inf in gzip.open('inf/inf.gz'):
-    inf_dict[inf[:-1]]+=1
-syntinf_dict=defaultdict(int)
-for syntinf in gzip.open('syntinf/syntinf.gz'):
-    syntinf_dict[syntinf[:-1]]+=1
-verbs_dict=defaultdict(int)
-for verb in gzip.open('verbs/verbs.gz'):
-    verbs_dict[verb[:-1]]+=1
-genitiv_og_dict=defaultdict(int)
-for genitiv_og in gzip.open('genitiv_og/genitiv_og.gz'):
-    genitiv_og_dict[genitiv_og[:-1]]+=1
-ist_dict = defaultdict(int)
-for ist in gzip.open('ist/ist.gz'):
-    ist_dict[ist[:-1]]+=1
+stems_dict={stem.rstrip("\n"):1 for stem in codecs.open('ir_ov_is/inter_stem_lex.txt', 'r', 'utf8')}
+ch_dict={stem.rstrip("\n"):1 for stem in gzip.open('ch/ch.gz')}
+inf_dict={inf.rstrip("\n"):1 for inf in gzip.open('inf/inf.gz')}
+syntinf_dict={syntinf.rstrip("\n"):1 for syntinf in gzip.open('syntinf/syntinf.gz')}
+verbs_dict={verb.rstrip("\n"):1 for verb in gzip.open('verbs/verbs.gz')}
+genitiv_og_dict={genitiv_og.rstrip("\n"):1 for genitiv_og in gzip.open('genitiv_og/genitiv_og.gz')}
+ist_dict={ist.rstrip("\n"):1 for ist in gzip.open('ist/ist.gz')}
 
 hrmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/hr_months.txt", "r", "utf8")]
 intmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/int_months.txt", "r", "utf8")]
-
-#modals=codecs.open('modals/modals.txt', 'r', 'utf8')
-#for modalverb in modals:
- #   modalverb = modalverb.rstrip("\n")
- #   modalsdict[modalverb]+=1
 
 def tokenize(text):
   return token_re.findall(text)
@@ -193,7 +169,9 @@ def c_ch(text):
 
 
 # def ao_o(text):
+#     #
 #     # Many false positivs:
+#
 #     # proble,: vi
 #     #pusto -> pustao, do->dao
 #   distr_o, distr_ao=defaultdict(int), defaultdict(int)
@@ -224,16 +202,13 @@ def c_ch(text):
 
 
 def sa_s(text):
-    # TODO IF BOTH CONDITIONS ARE TRUE
 
     """" sa / s rule deviation
     #http://savjetnik.ihjj.hr/savjet.php?id=17
     #Prijedlog sa upotrebljava se samo ispred riječi koje počinju glasovima s, š, z, ž
     #other (more complicated) source http://jezicna-pomoc.lss.hr/jsavjeti.php?view=2"""""
 
-    #text = text.encode("utf8")
     text = text.lower()
-    #s_re=re.search(r'\ssa(?!)((c|s|z|č|ć|š|ž|đ|dž)|\w(s|z|š|ž))',text)
     s_re_dev=re.search(r'\ss\s((s|z|š|ž)|(?!aeiou)(s|z|š|ž))',text)
     sa_re_dev=re.search(r'\ssa\s(?!((s|z|š|ž)|(?!aeiou)(s|z|š|ž)|mnom))',text)
     if s_re_dev and sa_re_dev:
@@ -263,7 +238,6 @@ def tko_ko(text):
 
 def sta_sto(text):
     """" što / šta """""
-    #(...) sve sto ides dalje to je teze i teze, ali sta je tu je :D
     #Note: što interrogative meaning same for all languages:  Sto da ne
     text_withoutdia = remove_diacritics(text).lower()
     sto_re=re.search(r'\b(sto)\b',text_withoutdia)
@@ -299,10 +273,9 @@ def usprkos(text):
     else:
         return "NA"
 
-#Možeš nešto da ne razumeš, ali ne bi trebalo da samo zbog toga to i ne poštuješ.
-
 
 def treba_da(text):
+
     """" treba da vs. treba* da """""
     text_withoutdia = remove_diacritics(text).lower()
     trebada=re.search(r'\b(treba|trebalo je|trebalo bi)\sda\b',text_withoutdia, re.UNICODE)
@@ -336,8 +309,6 @@ def ist(text):
 
 def bre(text):
     """" bre /bolan / bona/ ba  """""
-    #(...) sve sto ides dalje to je teze i teze, ali sta je tu je :D
-    #Note: što interrogative meaning same for all languages:  Sto da ne
     text_withoutdia = remove_diacritics(text).lower()
     bre_re=re.search(r'\bbre\b',text_withoutdia)
     bolan_re=re.search(r'\b(bolan|bona)\b',text_withoutdia)
@@ -421,20 +392,20 @@ def drug(text):
 
 def inf_without_i(text):
   text_withoutdia = remove_diacritics(text).lower()
-  distr_no_i,distr_i=defaultdict(int), defaultdict(int)
+  distr_no_i,distr_i={},{}
   for token in tokenize(text_withoutdia):
       if token.endswith(u"c") or token.endswith(u"t"):
           mod_token = token+u"i"
           if mod_token in inf_dict:
-              distr_no_i[mod_token]+=1
+              distr_no_i[mod_token]=1
       elif token.endswith(u"ci") or token.endswith(u"ti"):
           if token in inf_dict:
-              distr_i[token]+=1
-  if len(distr_no_i)>=1 and len(distr_i)>=1:
+              distr_i[token]=1
+  if len(distr_no_i)!=0 and len(distr_i)!=0:
       return "both inf with and inf without i"
-  elif len(distr_no_i)>=1 and len(distr_i)==0:
+  elif len(distr_no_i)!=0 and len(distr_i)==0:
     return "inf without i"
-  elif len(distr_i)>=1 and len(distr_no_i)==0:
+  elif len(distr_no_i)==0 and len(distr_i)!=1:
     return "inf with i"
   else:
     return "NA"
@@ -443,22 +414,21 @@ def inf_without_i(text):
 #syntinfverbs
 
 def synt_future(text):
-    #http://stackoverflow.com/questions/8923729/checking-for-diacritics-with-a-regular-expression
-  distrsynt, distrnosynt = defaultdict(int), defaultdict(int)
+  distrsynt, distrnosynt = {},{}
   text_withoutdia = remove_diacritics(text).lower()
   syntend_re=re.search(ur'\s(\w+(cu|ces|ce|cemo|cete|ce))\s',text_withoutdia, re.UNICODE)
   nosyntend_re=re.search(ur'\s(\w+(t|c)) (cu|ces|ce|cemo|cete|ce)\s',text_withoutdia, re.UNICODE)
   if syntend_re:
       if syntend_re.group(1) in syntinf_dict:
-          distrsynt[syntend_re.group(1)]+=1
+          distrsynt[syntend_re.group(1)]=1
   elif nosyntend_re:
       if nosyntend_re.group(1) in inf_dict or nosyntend_re.group(1)+u"i" in inf_dict:
-          distrnosynt[nosyntend_re.group(1)]+=1
-  if len(distrsynt)>=1 and len(distrnosynt)>=1:
+          distrnosynt[nosyntend_re.group(1)]=1
+  if len(distrsynt)==1 and len(distrnosynt)==1:
       return "both synt & nosynt inf"
-  elif len(distrsynt)>=1:
+  elif len(distrsynt)==1:
     return "synt inf"
-  elif len(distrnosynt)>=1:
+  elif len(distrnosynt)==1:
     return "nosynt inf"
   else:
     return "NA"
@@ -474,7 +444,7 @@ def da_present(text):
     text_withoutdia = remove_diacritics(text).lower()
     if "da" in tokenize(text_withoutdia)[1:-2]:
         dasent = tokenize(text_withoutdia)
-        ##if we want to add a condition before "da"
+        ## if we want to add a condition before "da"
         #if #dasent[dasent.index("da")-1] in presverbs/modalverbs and
         if dasent[dasent.index("da")+2] in presverbs:
             return "da pres"
@@ -485,7 +455,7 @@ def da_present(text):
             return "NA"
     elif "da" in tokenize(text_withoutdia)[1:-1]:
         dasent = tokenize(text_withoutdia)
-        ##if we want to add a condition before "da"
+        ## if we want to add a condition before "da"
         #dasent[dasent.index("da")-1] in presverbs/modalverbs  and
         if  dasent[dasent.index("da")+1] in presverbs:
             return "da pres"
@@ -499,19 +469,18 @@ def da_present(text):
 
 
 def genitiva(text):
-    # TODO nekog/onog/tog etc.
+    # TODO nekog/onog/tog ?
     # TODO #ome, om ?
     text_withoutdia = remove_diacritics(text).lower()
     oga_re=re.search(ur'\b(\w+oga)\b',text_withoutdia, re.UNICODE)
     og_re=re.search(ur'\b(\w+og)\b',text_withoutdia, re.UNICODE)
     if oga_re:
-        #print oga_re.group(1)
-        if oga_re.group(1)[:-1] in genitiv_og:
+        if oga_re.group(1)[:-1] in genitiv_og_dict:
             return "oga"
         else:
             return "NA"
     elif og_re:
-        if og_re.group(1) in genitiv_og:
+        if og_re.group(1) in genitiv_og_dict:
             return "og"
         else:
             return "NA"
@@ -519,9 +488,6 @@ def genitiva(text):
         return "NA"
 
 def ir_ov_is(text):
-    # TODO nekog/onog/tog etc.
-    # TODO #ome, om ?
-
     text_withoutdia = remove_diacritics(text).lower()
     ir=re.search(ur'\b(\w{3,})(iram|iras|ira|iramo|irate|iraju|irala|iralo|irali|irale)\b',text_withoutdia, re.UNICODE)
     ov=re.search(ur'\b(\w{3,})(ujem|ujes|uje|ujemo|ujete|uju|ovao|ovala|ovalo|ovali|ovale)\b',text_withoutdia, re.UNICODE)
@@ -544,7 +510,6 @@ def ir_ov_is(text):
     else:
         return "NA"
 
-# infinite verb ratio
 def inf_verb_ratio(text):
     nr_verbs = 0
     nr_inf = 0
@@ -560,9 +525,6 @@ def inf_verb_ratio(text):
 
 
 #---End Morpho-Synt. Features ------------------------------------------------------------------------------------------
-
-# Letter feature
-# ad.is_cyrillic(u"Поискламцсјћ")
 
 
 def cyrillic(text):
@@ -590,13 +552,13 @@ def cyrillic(text):
 
 t="\t"
 out=gzip.open('hrsrTweets.var.gz','w')
-out.write("text"+t+"text metainformation"+t+"yat"+t+"k (hr) - h (sr)"+t+"r (hr) - r-drop(sr)"+t
-              +"č & ć deviation"+t+"št (sr) - ć (hr)"+t+"eu/au (hr) - ev/av (sr)"+t
-              +"sa & s deviation"+t+"tko - ko" +t+"šta - što"+t+"da li - je li"+t
-              +"usprkos/uprkos/unatoč"+t+"bre/bolan/bona/ba"+t+"mnogo/puno/vrlo/jako"+t+"hr mjeseci - intern. mjeseci"+t+"tjedan/nedjelja/nedelja/sedmica"+t+"drug/prijatelj (m/f)"+t
-              +"treba da - trebaXXX da"+t+"inf with/without -i"+t+"synt. future"+t+"'da' in text"+t
+out.write(t+t+t+t+t+t+t+"text metainformation"+t+"yat"+t+"k (hr) vs. h (sr)"+t+"h-drop"+t+"r (hr) vs. r-drop(sr)"+t
+              +"č & ć deviation"+t+"št (sr) vs. ć (hr)"+t+"eu/au (hr) vs. ev/av (sr)"+t
+              +"sa & s deviation"+t+"tko vs. ko" +t+"šta vs. što"+t+"da li vs. je li"+t
+              +"usprkos/uprkos/unatoč"+t+"bre/bolan/bona/ba"+t+"mnogo/puno/vrlo/jako"+t+"hr mjeseci vs. intern. mjeseci"+t+"tjedan/nedjelja/nedelja/sedmica"+t+"drug/prijatelj (m/f)"+t
+              +"treba da vs. trebaXXX da"+t+"inf with/without -i"+t+"synt. future"+t+"'da' in text"+t
               +"da+present"+t+"genitiv og/oga"+t+"irati/ovati/isati"+t+"inf/verb ratio"+t
-              +"'-ist'(hr) - '-ista' (sr)"+t+"Cyrillic/Latin"+"\n")
+              +"'-ist'(hr) vs. '-ista' (sr)"+t+"Cyrillic/Latin"+"\n")
 
 ## Left out +ao_o(text)
 
