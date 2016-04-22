@@ -21,7 +21,6 @@ yat_lexicon=dict([e[:-1].split('\t') for e in gzip.open('yat-lexicon/apertium-ya
 kh_lexicon=dict([k[:-1].split('\t') for k in gzip.open('kh-lexicon/apertium-kh.gz')])
 hdrop_lexicon=dict([h[:-1].split('\t') for h in gzip.open('drop-lexicons/apertium-hdrop.gz')])
 rdrop_lexicon=dict([r[:-1].split('\t') for r in gzip.open('drop-lexicons/apertium-rdrop.gz')])
-presverbs=dict([pres[:-1].split('\t') for pres in gzip.open('presverbs/presverbs.gz')])
 st_lexicon=dict([st[:-1].split('\t') for st in gzip.open('st_lexicon/apertium_st.gz')])
 diftong_lexicon=dict([diftong[:-1].split('\t') for diftong in gzip.open('diftong_v/apertium_diftong_lexicon.gz')])
 stems_dict={stem.rstrip("\n"):1 for stem in codecs.open('ir_ov_is/inter_stem_lex.txt', 'r', 'utf8')}
@@ -31,6 +30,8 @@ syntinf_dict={syntinf.rstrip("\n"):1 for syntinf in gzip.open('syntinf/syntinf.g
 verbs_dict={verb.rstrip("\n"):1 for verb in gzip.open('verbs/verbs.gz')}
 genitiv_og_dict={genitiv_og.rstrip("\n"):1 for genitiv_og in gzip.open('genitiv_og/genitiv_og.gz')}
 ist_dict={ist.rstrip("\n"):1 for ist in gzip.open('ist/ist.gz')}
+presverbs={pres.rstrip("\n"):1 for pres in gzip.open('presverbs/presverbs.gz')}
+
 
 hrmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/hr_months.txt", "r", "utf8")]
 intmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/int_months.txt", "r", "utf8")]
