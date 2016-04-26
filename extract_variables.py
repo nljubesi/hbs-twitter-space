@@ -1,12 +1,13 @@
 #!/usr/bin/python
 #-*-coding:utf8-*-
 
+## Script for annotating the presence or absence of variables in the tweet corpus
+## The considered features are of phonetical, lexical and morpho-syntactical nature
+## The output file hrsrTweets.var.gz contains the tweets, their metadata and values for each feature (tab separated)
 
 from __future__ import division
 import gzip
 import re
-import codecs
-from collections import defaultdict
 
 
 dia={u'č':u'c',u'š':u's',u'ž':u'z',u'ć':u'c',u'đ':u'd',u'Č':u'C',u'Š':u'S',u'Ž':u'Z',u'Ć':u'C',u'Đ':u'D'}
@@ -17,24 +18,22 @@ def remove_diacritics(text):
   return result
 
 token_re=re.compile(r'#\w+|@\w|https?://[\w/_.-]+|\w+',re.UNICODE)
-yat_lexicon=dict([e[:-1].split('\t') for e in gzip.open('yat-lexicon/apertium-yat.gz')])
-kh_lexicon=dict([k[:-1].split('\t') for k in gzip.open('kh-lexicon/apertium-kh.gz')])
-hdrop_lexicon=dict([h[:-1].split('\t') for h in gzip.open('drop-lexicons/apertium-hdrop.gz')])
-rdrop_lexicon=dict([r[:-1].split('\t') for r in gzip.open('drop-lexicons/apertium-rdrop.gz')])
-st_lexicon=dict([st[:-1].split('\t') for st in gzip.open('st_lexicon/apertium_st.gz')])
-diftong_lexicon=dict([diftong[:-1].split('\t') for diftong in gzip.open('diftong_v/apertium_diftong_lexicon.gz')])
-stems_dict={stem.rstrip("\n"):1 for stem in codecs.open('ir_ov_is/inter_stem_lex.txt', 'r', 'utf8')}
-ch_dict={stem.rstrip("\n"):1 for stem in gzip.open('ch/ch.gz')}
-inf_dict={inf.rstrip("\n"):1 for inf in gzip.open('inf/inf.gz')}
-syntinf_dict={syntinf.rstrip("\n"):1 for syntinf in gzip.open('syntinf/syntinf.gz')}
-verbs_dict={verb.rstrip("\n"):1 for verb in gzip.open('verbs/verbs.gz')}
-genitiv_og_dict={genitiv_og.rstrip("\n"):1 for genitiv_og in gzip.open('genitiv_og/genitiv_og.gz')}
-ist_dict={ist.rstrip("\n"):1 for ist in gzip.open('ist/ist.gz')}
-presverbs={pres.rstrip("\n"):1 for pres in gzip.open('presverbs/presverbs.gz')}
-
-
-hrmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/hr_months.txt", "r", "utf8")]
-intmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in codecs.open("months/int_months.txt", "r", "utf8")]
+yat_lexicon=dict([e[:-1].split('\t') for e in gzip.open('custom-lexicons/apertium-yat-lexicon.gz')])
+kh_lexicon=dict([k[:-1].split('\t') for k in gzip.open('custom-lexicons/apertium-kh-lexicon.gz')])
+hdrop_lexicon=dict([h[:-1].split('\t') for h in gzip.open('custom-lexicons/apertium-hdrop-lexicon.gz')])
+rdrop_lexicon=dict([r[:-1].split('\t') for r in gzip.open('custom-lexicons/apertium-rdrop-lexicon.gz')])
+st_c_lexicon=dict([st[:-1].split('\t') for st in gzip.open('custom-lexicons/apertium-st-c-lexicon.gz')])
+diftong_lexicon=dict([diftong[:-1].split('\t') for diftong in gzip.open('custom-lexicons/apertium-diftong-v-lexicon.gz')])
+stems_dict={stem.rstrip("\n"):1 for stem in gzip.open('custom-lexicons/inter-stem-lexicon.gz')}
+ch_dict={stem.rstrip("\n"):1 for stem in gzip.open('custom-lexicons/ch-lexicon.gz')}
+inf_dict={inf.rstrip("\n"):1 for inf in gzip.open('custom-lexicons/verbs-inf-lexicon.gz')}
+syntinf_dict={syntinf.rstrip("\n"):1 for syntinf in gzip.open('custom-lexicons/verbs-vmf-stem-lexicon.gz')}
+verbs_dict={verb.rstrip("\n"):1 for verb in gzip.open('custom-lexicons/verbs-lexicon.gz')}
+presverbs={pres.rstrip("\n"):1 for pres in gzip.open('custom-lexicons/verbs-pres-lexicon.gz')}
+genitiv_og_dict={genitiv_og.rstrip("\n"):1 for genitiv_og in gzip.open('custom-lexicons/genitiv-og-eg-lexicon.gz')}
+#ist_dict={ist.rstrip("\n"):1 for ist in gzip.open('custom-lexicons/ist.gz')}
+hrmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in gzip.open("custom-lexicons/hr-months.gz")]
+intmonths = [remove_diacritics(x.split("\t")[1].rstrip("\n")).lower() for x in gzip.open("custom-lexicons/int-months.gz")]
 
 
 def tokenize(text):
@@ -45,11 +44,15 @@ def tokenize(text):
 
 
 def clean(text,lang):
-    automatic_re = re.search("(Objavio/la sam novu fotografiju|Just posted a photo|Today stats:|I just ousted|I'm at|I (just)? ?(voted|added)|via (Tumblr|Facebook)|I liked a @YouTube)",text)
-    if automatic_re or "tweep" in "automatically checked by" in text:
+    automatic_re = re.search("(tweep|automatically checked by|Objavio/la sam novu fotografiju|Just posted a photo|Today stats:"
+                             "|I just ousted|I'm at|I (just)? ?(voted|added)|via (Tumblr|Facebook)"
+                             "|I liked a @YouTube)",text)
+    if automatic_re: #or "tweep" in text in "automatically checked by" in text:
         return "automatic"
-    elif lang.startswith("en:1"):
-         return "English tweet"
+    # if you want to be 100% sure
+    #elif lang.startswith("en:1"):
+    #     return "English tweet"
+    # otherwise just eliminate other aproximations
     elif lang.startswith("en:") and "if you" in text or " visit " in text:
          return "English tweet"
 
@@ -76,7 +79,7 @@ def clean(text,lang):
         else:
             return "NA"
             ## Eventually:
-            #other_non_bkms_tweets_re = re.search("\w+? ?(Follow me on|check (this)? ?out|you should|untitled)",text)
+            ## other_non_bkms_tweets_re = re.search("\w+? ?(Follow me on|check (this)? ?out|you should|untitled)",text)
             #if other_non_bkms_tweets_re:
              #   return "other"
 
@@ -85,23 +88,32 @@ def clean(text,lang):
 
 #---Start Phonetical Features-------------------------------------------------------------------------------------------
 
+## TODO MAKE BOTH FOR ALL FEATURES
+
 def yat(text):
+  """returns "e" if ekavica and "je" if (i)jekavica, NA if none """
   distr={}
   for token in tokenize(remove_diacritics(text).lower()):
     if token in yat_lexicon:
       distr[yat_lexicon[token]]=distr.get(yat_lexicon[token],0)+1
+  #if there are not yat-reflexes in the sentence
   if len(distr)==0:
     return 'NA'
+  # if there are both reflexes
   elif len(distr)==2:
     sdistr=sorted(distr.items(),key=lambda x:-x[1])
     if sdistr[0][1]==sdistr[1][1]:
-        return 'NA'
-    else:
-        return sdistr[0][0]
+        #return 'NA'
+        return "both"
+        # eg. zasto novosadjani pricaju o mestu skoci djevojka zivim ovde 15 godina nikad nisam cula za to e
+    #else:
+     #   return sdistr[0][0]
   else:
     return distr.keys()[0]
 
 def kh(text):
+  """returns k if initial k instead of h (croatian) and h if initial h instead of k (serbian)
+   variation of the same word (ex. kemija/hemija), NA if none   """
   distr={}
   for token in tokenize(remove_diacritics(text).lower()):
     if token in kh_lexicon:
@@ -111,8 +123,8 @@ def kh(text):
   else:
     return distr.keys()[0]
 
-
 def hdrop(text):
+  """returns h if initial "h" is not dropped and "h_drop" if it is dropped (ex. historija/istorija), NA if none """
   distr={}
   for token in tokenize(remove_diacritics(text).lower()):
     if token in hdrop_lexicon:
@@ -123,6 +135,8 @@ def hdrop(text):
     return distr.keys()[0]
 
 def rdrop(text):
+  """returns r if "r" is not dropped and "r_drop" if it is dropped (ex. jucer/juce), NA if none """
+
   distr={}
   for token in tokenize(remove_diacritics(text).lower()):
     if token in rdrop_lexicon:
@@ -132,18 +146,20 @@ def rdrop(text):
   else:
     return distr.keys()[0]
 
-
-def st(text):
+def st_c(text):
+  """returns "ć" if "ć"-sequence (croatian) instead of "št"-sequence (serbian) and the other way around (uopće/uopšte),
+  NA if none"""
   distr={}
   for token in tokenize(remove_diacritics(text).lower()):
-    if token in st_lexicon:
-      distr[st_lexicon[token]]=distr.get(st_lexicon[token],0)+1
+    if token in st_c_lexicon:
+      distr[st_c_lexicon[token]]=distr.get(st_c_lexicon[token],0)+1
   if len(distr)==0 or len(distr)==2:
     return 'NA'
   else:
     return distr.keys()[0]
 
 def diftong(text):
+  """returns eu/au if croatian diphtong or ev/av if serbian variation (euro/evro, august/avgust), NA if none"""
   distr={}
   for token in tokenize(remove_diacritics(text).lower()):
     if token in diftong_lexicon:
@@ -153,8 +169,9 @@ def diftong(text):
   else:
     return distr.keys()[0]
 
-
 def c_ch(text):
+  """returns "č dev" if "č" written as "ć", and "ć dev" if "ć" written as "č",
+   "both" if both, NA if none """
   distr_ch,distr_c={},{}
   for token in tokenize(text.lower()):
       if u"č" in token and token not in ch_dict:
@@ -166,7 +183,7 @@ def c_ch(text):
           if mod_token in ch_dict:
               distr_c[mod_token]=1
   if len(distr_ch) ==1 and len(distr_ch) ==1:
-      return "both č dev & ć dev"
+      return "both"
   if len(distr_ch)==1:
     return "č dev"
   elif len(distr_c)==1:
@@ -210,31 +227,32 @@ def c_ch(text):
 
 def sa_s(text):
 
-    """" sa / s rule deviation
-    #http://savjetnik.ihjj.hr/savjet.php?id=17
-    #Prijedlog sa upotrebljava se samo ispred riječi koje počinju glasovima s, š, z, ž
-    #other (more complicated) source http://jezicna-pomoc.lss.hr/jsavjeti.php?view=2"""""
+    """ returns "sa dev" if sa-rule deviation and "s dev" if s-rule deviation, "both" if both and "NA" if none
+    http://savjetnik.ihjj.hr/savjet.php?id=17
+    Prijedlog sa upotrebljava se samo ispred riječi koje počinju glasovima s, š, z, ž
+    other (more complicated) source http://jezicna-pomoc.lss.hr/jsavjeti.php?view=2"""
 
     text = text.lower()
-    s_re_dev=re.search(r'\ss\s((s|z|š|ž)|(?!aeiou)(s|z|š|ž))',text)
-    sa_re_dev=re.search(r'\ssa\s(?!((s|z|š|ž)|(?!aeiou)(s|z|š|ž)|mnom))',text)
+    s_re_dev=re.search(r'\bs\s((s|z|š|ž)|(?!aeiou)(s|z|š|ž))',text)
+    sa_re_dev=re.search(r'\bsa\s(?!((s|z|š|ž)|(?!aeiou)(s|z|š|ž)|mnom))',text)
     if s_re_dev and sa_re_dev:
-        return "both sa & s rule dev"
+        return "both"
     if s_re_dev:
-        return "s rule dev"
+        return "s dev"
     elif sa_re_dev:
-        return "sa rule dev"
+        return "sa dev"
     else:
         return "NA"
 
 def tko_ko(text):
-    """" tko / ko """""
+    """ returns "tko" if tko (and other pronuns with tk) and "ko" if "ko" (and other pronuns with ko),
+     "both" if both and "NA" if none """
     text_withoutdia = remove_diacritics(text).lower()
     tko_re=re.search(r'\b(ne|gdje|ni|i|sva|koje)?tko\b',text_withoutdia)
     ko_re=re.search(r'\b(ne|ni|i|sva|koje)?ko\b',text_withoutdia)
 
     if tko_re and ko_re:
-        return "both tko & ko"
+        return "both"
     elif tko_re:
         return "tko"
     elif ko_re:
@@ -242,15 +260,17 @@ def tko_ko(text):
     else:
         return "NA"
 
-
 def sta_sto(text):
-    """" što / šta """""
-    #Note: što interrogative meaning same for all languages:  Sto da ne
+    """ returns "što" if "sto" in tweet and "šta" if "sta" in tweet
+     "both" if both and "NA" if none """
+    ## Problems:
+    ## - što interrogative meaning same for all languages:  Sto da ne
+    ## - sto without diacritics = 100
     text_withoutdia = remove_diacritics(text).lower()
     sto_re=re.search(r'\b(sto)\b',text_withoutdia)
     sta_re=re.search(r'\b(sta)\b',text_withoutdia)
     if sto_re and sta_re:
-        return "both što & šta"
+        return "both"
     elif sto_re:
         return 'što'
     elif sta_re:
@@ -259,10 +279,14 @@ def sta_sto(text):
         return 'NA'
 
 def da_je_li(text):
+    """returns "da li" if "da li" in tweet and "je li" if "je li" in tweet
+     "both" if both and "NA" if none"""
     text_withoutdia = remove_diacritics(text).lower()
     dali_re=re.search(r'\b(da li|dal)\b',text_withoutdia)
     jeli_re=re.search(r'\b(je li|jel)\b',text_withoutdia)
-    if dali_re:
+    if dali_re and jeli_re:
+        return "both"
+    elif dali_re:
         return 'da li'
     elif jeli_re:
         return 'je li'
@@ -280,9 +304,9 @@ def usprkos(text):
     else:
         return "NA"
 
-
 def treba_da(text):
-
+    """returns "treba da" if "treba da" in tweet and "trebaX da" if treba\w+\sda in tweet (ex. trebam da)
+     "both" if both and "NA" if none"""
     """" treba da vs. treba* da """""
     text_withoutdia = remove_diacritics(text).lower()
     trebada=re.search(r'\b(treba|trebalo je|trebalo bi)\sda\b',text_withoutdia, re.UNICODE)
@@ -290,7 +314,7 @@ def treba_da(text):
     trebaXpl=re.search(r'\btreba(la|o|li|le)\s(sam|si|je|smo|ste|su|bi)\sda\b',text_withoutdia, re.UNICODE)
 
     if trebada and (trebaXsg or trebaXpl):
-        return "both treba da & trebaX da"
+        return "both"
     elif trebada:
         return "treba da"
     elif trebaXsg or trebaXpl:
@@ -298,24 +322,25 @@ def treba_da(text):
     else:
         return "NA"
 
-def ist(text):
-    distr_ist,distr_ista={},{}
-    for token in tokenize(remove_diacritics(text).lower()):
-        if token.endswith("ista"):
-            if token[:-1] in ist_dict:
-                distr_ista[token]=1
-        elif token.endswith("ist"):
-            if token in ist_dict:
-                distr_ist[token]=1
-    if len(distr_ist)==1:
-        return "ist"
-    elif len(distr_ista)==1:
-        return "ista"
-    else:
-        return "NA"
+# #vizazist/vizazista (false positivs alert: it always can be a genitiv)
+# def ist(text):
+#     distr_ist,distr_ista={},{}
+#     for token in tokenize(remove_diacritics(text).lower()):
+#         if token.endswith("ista"):
+#             if token[:-1] in ist_dict:
+#                 distr_ista[token]=1
+#         elif token.endswith("ist"):
+#             if token in ist_dict:
+#                 distr_ist[token]=1
+#     if len(distr_ist)==1:
+#         return "ist"
+#     elif len(distr_ista)==1:
+#         return "ista"
+#     else:
+#         return "NA"
 
 def bre(text):
-    """" bre /bolan / bona/ ba  """""
+    """ returns  bre, bolan, ba or NA, depending on the presence of thise stings in tweets """
     text_withoutdia = remove_diacritics(text).lower()
     bre_re=re.search(r'\bbre\b',text_withoutdia)
     bolan_re=re.search(r'\b(bolan|bona)\b',text_withoutdia)
@@ -331,6 +356,7 @@ def bre(text):
         return 'NA'
 
 def mnogo(text):
+    #TODO check if it makes sense
     text_withoutdia = remove_diacritics(text).lower()
     if u'mnogo' in text_withoutdia:
         return 'mnogo'
@@ -343,30 +369,31 @@ def mnogo(text):
     else:
         return "NA"
 
-
 def months(text):
+    """returns "HR months" if croatian month names and "international months" if international, both if both and NA if none  """
     text_withoutdia = remove_diacritics(text).lower()
-    hr, international = 0, 0
+    hr,international = 0,0
     for token in tokenize(text_withoutdia.lower()):
         if token in hrmonths:
             hr+=1
         elif token in intmonths:
             international+=1
-    if hr > 0:
+    if hr>0 and international>0:
+        return "both"
+    elif hr>0:
         return "HR months"
-    elif international >0:
+    elif international>0:
         return "international months"
     else:
         return "NA"
 
 def tjedan(text):
-    """" treba da vs. treba* da """""
+    """returns tjedan/sedmica/nedjelja/nedelja/NA """
     text_withoutdia = remove_diacritics(text).lower()
     tjedan_re=re.search(r'\b(tjed(an|na|no|nu|nom|ni|ana|nima))\b',text_withoutdia, re.UNICODE)
     sedmica_re=re.search(r'\bsedmic(a|u|i|om|e|ama)\b',text_withoutdia, re.UNICODE)
     nedjelja_re=re.search(r'\bnedjelj(a|u|i|om|e|ama)\b',text_withoutdia, re.UNICODE)
     nedelja_re=re.search(r'\bnedelj(a|u|i|om|e|ama)\b',text_withoutdia, re.UNICODE)
-
     if tjedan_re:
         return "tjedan"
     elif sedmica_re:
@@ -378,12 +405,15 @@ def tjedan(text):
     else:
         return "NA"
 
-
 def drug(text):
+    """returns drug/prijatelj/both/NA"""
+    #TODO: include variations such as drugaricin, drugarski etc?
     text_withoutdia = remove_diacritics(text).lower()
     drug=re.search(r'\b(drug(a|u|om|ovi|ove|ovima)?|druze|drugaric(a|e|i|om|ama))\b',text_withoutdia)
     prijatelj=re.search(r'\b(prijatelj(a|u|em|e|ima)?|prijateljic(a|u|e|i|om|ama))\b', text_withoutdia)
-    if drug:
+    if drug and prijatelj:
+        return "both"
+    elif drug:
         return "drug"
     elif prijatelj:
         return "prijatelj"
@@ -398,6 +428,8 @@ def drug(text):
 # – infinitive without ”i”
 
 def inf_without_i(text):
+  """return "inf without i" if infinitiv without -i ending and "inf with i" if infinitiv with -i ending,
+   both if both and NA if none"""
   text_withoutdia = remove_diacritics(text).lower()
   distr_no_i,distr_i={},{}
   for token in tokenize(text_withoutdia):
@@ -409,7 +441,7 @@ def inf_without_i(text):
           if token in inf_dict:
               distr_i[token]=1
   if len(distr_no_i)!=0 and len(distr_i)!=0:
-      return "both inf with and inf without i"
+      return "both"
   elif len(distr_no_i)!=0 and len(distr_i)==0:
     return "inf without i"
   elif len(distr_no_i)==0 and len(distr_i)!=1:
@@ -421,10 +453,12 @@ def inf_without_i(text):
 #syntinfverbs
 
 def synt_future(text):
+  """return "synt inf" if syntetic infinitiv (uradicu), "nosynt inf" if analytic infinitiv (uradit cu),
+  "both" if both and NA if none """
   distrsynt, distrnosynt = {},{}
   text_withoutdia = remove_diacritics(text).lower()
-  syntend_re=re.search(ur'\s(\w+(cu|ces|ce|cemo|cete|ce))\s',text_withoutdia, re.UNICODE)
-  nosyntend_re=re.search(ur'\s(\w+(t|c)) (cu|ces|ce|cemo|cete|ce)\s',text_withoutdia, re.UNICODE)
+  syntend_re=re.search(ur'\b(\w+)(cu|ces|ce|cemo|cete|ce)\b',text_withoutdia, re.UNICODE)
+  nosyntend_re=re.search(ur'\b(\w+(t|c)) (cu|ces|ce|cemo|cete|ce)\b',text_withoutdia, re.UNICODE)
   if syntend_re:
       if syntend_re.group(1) in syntinf_dict:
           distrsynt[syntend_re.group(1)]=1
@@ -432,7 +466,7 @@ def synt_future(text):
       if nosyntend_re.group(1) in inf_dict or nosyntend_re.group(1)+u"i" in inf_dict:
           distrnosynt[nosyntend_re.group(1)]=1
   if len(distrsynt)==1 and len(distrnosynt)==1:
-      return "both synt & nosynt inf"
+      return "both"
   elif len(distrsynt)==1:
     return "synt inf"
   elif len(distrnosynt)==1:
@@ -441,13 +475,16 @@ def synt_future(text):
     return "NA"
 
 def da(text):
+    """return "da" if da in text and NA if not"""
     if "da" in tokenize(text.lower()):
         return "da"
     else:
         return "NA"
 
 def da_present(text):
-    ## TODO COUNT
+    """"return "da pres" if "da" is followed by verb in present tense in the +2 window,
+      "da without pres" if it is not, and NA if there is no "da" in the tweet  """
+    ## TODO solve problem ---bla bla da ces----
     text_withoutdia = remove_diacritics(text).lower()
     if "da" in tokenize(text_withoutdia)[1:-2]:
         dasent = tokenize(text_withoutdia)
@@ -457,7 +494,7 @@ def da_present(text):
             return "da pres"
         #dasent[dasent.index("da")-1] in presverbs/modalverbs  and
         elif dasent[dasent.index("da")+2] not in presverbs:
-            return "da no pres"
+            return "da without pres"
         else:
             return "NA"
     elif "da" in tokenize(text_withoutdia)[1:-1]:
@@ -468,7 +505,7 @@ def da_present(text):
             return "da pres"
         #dasent[dasent.index("da")-1] in presverbs/modalverbs  and
         elif  dasent[dasent.index("da")+1] not in presverbs:
-            return "da no pres"
+            return "da without pres"
         else:
             return "NA"
     else:
@@ -476,12 +513,16 @@ def da_present(text):
 
 
 def genitiva(text):
-    # TODO nekog/onog/tog ?
-    # TODO #ome, om ?
+    """return "oga" if a word in tweet is ending with -oga and is in the list of genitiv-og/a endings
+      "og" if a word in tweet is ending with -og and is in the list of genitiv-og/a endings,
+       both if both and NA if none"""
+    # TODO decide whether to do the same for -ome, -om
     text_withoutdia = remove_diacritics(text).lower()
     oga_re=re.search(ur'\b(\w+oga)\b',text_withoutdia, re.UNICODE)
     og_re=re.search(ur'\b(\w+og)\b',text_withoutdia, re.UNICODE)
-    if oga_re:
+    if og_re and oga_re:
+        return "both"
+    elif oga_re:
         if oga_re.group(1)[:-1] in genitiv_og_dict:
             return "oga"
         else:
@@ -518,6 +559,8 @@ def ir_ov_is(text):
         return "NA"
 
 def inf_verb_ratio(text):
+    """return ratio nr.infinitiv/nr.allverbs """
+    # TODO: if uradicu infinitiv
     nr_verbs = 0
     nr_inf = 0
     for token in tokenize(remove_diacritics(text).lower()):
@@ -535,45 +578,52 @@ def inf_verb_ratio(text):
 
 
 def cyrillic(text):
-    """""Check if cyrillic letters in text"""""
+    """Check if cyrillic letters in text"""
 
-    #retruns many other characters (Russian) too
-    serbian_alphabet_cyrillic = u'АаБбВвГгДдЂђЕеЖжЗзИиЈјКкЛлЉљМмНнЊњОоПпРрСсТтЋћУуФфХхЦцЧчЏџШш'
+    #serbian_alphabet_cyrillic = u'АаБбВвГгДдЂђЕеЖжЗзИиЈјКкЛлЉљМмНнЊњОоПпРрСсТтЋћУуФфХхЦцЧчЏџШш'
     cyril = re.findall(u"[\u0400-\u0500]+", text)
-    not_sr_cyril = []
-    sr_cyril = []
-    for word in cyril:
-        for letter in word:
-            if letter not in serbian_alphabet_cyrillic:
-                not_sr_cyril.append(letter)
-            else:
-                sr_cyril.append(letter)
-    if len(not_sr_cyril) > 0:
+    if cyril:
         return "Mix Cyrillic"
-    elif len(sr_cyril)>0:
-        return "SR Cyrilic"
     else:
-        return "Latin"
+        return "Not Cyrillic"
+    #not_sr_cyril = []
+    #sr_cyril = []
+    #for word in cyril:
+    #    for letter in word:
+    #        if letter not in serbian_cyrillic:
+    #            not_sr_cyril.append(letter)
+    #        else:
+    #            sr_cyril.append(letter)
+
+    #if len(sr_cyril)>len(not_sr_cyril):
+    #    return "SR Cyrilic"
+    #elif len(not_sr_cyril)>len(sr_cyril):
+    #    return "Mix Cyrillic"
+    #else:
+    #    return "Latin"
 
 t="\t"
-out=gzip.open('hrsrTweets.var.gz','w')
-out.write(t+t+t+t+t+t+t+"text metainformation"+t+"yat"+t+"k (hr) vs. h (sr)"+t+"h-drop"+t+"r (hr) vs. r-drop(sr)"+t
-              +"č & ć deviation"+t+"št (sr) vs. ć (hr)"+t+"eu/au (hr) vs. ev/av (sr)"+t
-              +"sa & s deviation"+t+"tko vs. ko" +t+"šta vs. što"+t+"da li vs. je li"+t
-              +"usprkos/uprkos/unatoč"+t+"bre/bolan/bona/ba"+t+"mnogo/puno/vrlo/jako"+t+"hr mjeseci vs. intern. mjeseci"+t+"tjedan/nedjelja/nedelja/sedmica"+t+"drug/prijatelj (m/f)"+t
-              +"treba da vs. trebaXXX da"+t+"inf with/without -i"+t+"synt. future"+t+"'da' in text"+t
-              +"da+present"+t+"genitiv og/oga"+t+"irati/ovati/isati"+t+"inf/verb ratio"+t
-              +"'-ist'(hr) vs. '-ista' (sr)"+t+"Cyrillic/Latin"+"\n")
 
-## Left out +ao_o(text)
-
+# out=gzip.open('hrsrTweets.var.gz','w')
+# out.write(t+t+t+t+t+t+t+"text metainformation"+t+"yat"+t+"k (hr) vs. h (sr)"+t+"h-drop"+t+"r (hr) vs. r-drop(sr)"+t
+#               +"č & ć deviation"+t+"št (sr) vs. ć (hr)"+t+"eu/au (hr) vs. ev/av (sr)"+t
+#               +"sa & s deviation"+t+"tko vs. ko" +t+"šta vs. što"+t+"da li vs. je li"+t
+#               +"usprkos/uprkos/unatoč"+t+"bre/bolan/bona/ba"+t+"mnogo/puno/vrlo/jako"+t+"hr mjeseci vs. intern. mjeseci"+t+"tjedan/nedjelja/nedelja/sedmica"+t+"drug/prijatelj (m/f)"+t
+#               +"treba da vs. trebaXXX da"+t+"inf with/without -i"+t+"synt. future"+t+"'da' in text"+t
+#               +"da+present"+t+"genitiv og/oga"+t+"irati/ovati/isati"+t+"inf/verb ratio"+t
+#               +"Cyrillic/Latin"+"\n")
+#
+# ## Left out +ao_o(text)
+# ## Left out +ist(text)
+#
 for line in gzip.open('hrsrTweets.gz'):
     tid,user,time,lang,lon,lat,text=line[:-1].decode('utf8').split('\t')
-    out.write(line[:-1]+t+clean(text,lang)+t+yat(text)+t+kh(text)+t+hdrop(text)+t+rdrop(text)+t
-             +c_ch(text)+t+st(text)+t+diftong(text)+t
-             +sa_s(text)+t+tko_ko(text)+t+sta_sto(text)+t+da_je_li(text)+t
-             +usprkos(text)+t+bre(text)+t+mnogo(text)+t+months(text)+t+tjedan(text)+t+drug(text)+t
-             +treba_da(text)+t+inf_without_i(text)+t+synt_future(text)+t+da(text)+t
-             +da_present(text)+t+genitiva(text)+t+ir_ov_is(text)+t+str(inf_verb_ratio(text))+t
-             +ist(text)+t+cyrillic(text)+"\n")
-out.close()
+    yat(text).encode("utf8")
+#     out.write(line[:-1]+t+clean(text,lang)+t+yat(text)+t+kh(text)+t+hdrop(text)+t+rdrop(text)+t
+#              +c_ch(text)+t+st_c(text)+t+diftong(text)+t
+#              +sa_s(text)+t+tko_ko(text)+t+sta_sto(text)+t+da_je_li(text)+t
+#              +usprkos(text)+t+bre(text)+t+mnogo(text)+t+months(text)+t+tjedan(text)+t+drug(text)+t
+#              +treba_da(text)+t+inf_without_i(text)+t+synt_future(text)+t+da(text)+t
+#              +da_present(text)+t+genitiva(text)+t+ir_ov_is(text)+t+str(inf_verb_ratio(text))+t
+#              +cyrillic(text)+"\n")
+# out.close()
