@@ -50,14 +50,14 @@ Calling the scripts
 
 For extracting the variables:
 
-$ pyton extract_variables.py
+* $ python extract_variables.py
 
 For creating customized lexicons:
 
-$ python extract_discr_lexicons.py
-$ python extract_not_discr_lexicons.py
-$ python extract_irovis_stems.py
-$ python extract_vmf_stems.py
+* $ python extract_discr_lexicons.py
+* $ python extract_not_discr_lexicons.py
+* $ python extract_irovis_stems.py
+* $ python extract_vmf_stems.py
 
 
 Contact
