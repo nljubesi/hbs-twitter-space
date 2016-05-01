@@ -1,14 +1,19 @@
 #!/usr/bin/python
 #-*-coding:utf8-*-
 import gzip
+from collections import defaultdict
 
 
 lexicon_dirs='../../lexicons/apertium'
-yat=gzip.open('../custom-lexicons/apertium-yat-lexicon.gz','w')
-diftong_v=gzip.open('../custom-lexicons/apertium-diftong-v-lexicon.gz','w')
-h_drop=gzip.open('../custom-lexicons/apertium-hdrop-lexicon.gz','w')
-k_h=gzip.open('../custom-lexicons/apertium-kh-lexicon.gz','w')
-st_c=gzip.open('../custom-lexicons/apertium-st-c-lexicon.gz','w')
+yat=gzip.open('../custom-lexicons/yat-lexicon.gz','w')
+diftong_v=gzip.open('../custom-lexicons/diftong-v-lexicon.gz','w')
+h_drop=gzip.open('../custom-lexicons/hdrop-lexicon.gz','w')
+k_h=gzip.open('../custom-lexicons/kh-lexicon.gz','w')
+st_c=gzip.open('../custom-lexicons/st-c-lexicon.gz','w')
+ir_is=gzip.open('../custom-lexicons/ir-is-lexicon.gz', 'w')
+ir_ov=gzip.open('../custom-lexicons/ir-ov-lexicon.gz', 'w')
+
+
 ##eventually for ist/ista feature (ex. vizazist/vizazista)
 #ist=gzip.open('custom-lexicons/apertium-ist-lexicon.gz','w')
 
@@ -22,6 +27,11 @@ def remove_diacritics(token):
 log=open('log','w')
 hr={}
 sr={}
+hr_lemma={}
+sr_lemma={}
+#hr_lemma=defaultdict(set)
+#sr_lemma=defaultdict(set)
+
 for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
   token,lemma,tag=line.decode('utf8').split('\t')[:3]
   if token.lower()!=token:
@@ -29,6 +39,9 @@ for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
   if token not in hr:
     hr[token]=set()
   hr[token].add(tag)
+  if lemma not in hr_lemma:
+    hr_lemma[lemma]=set()
+  hr_lemma[lemma].add(token)
 log.write(repr(hr.items()[:10])+'\n')
 
 
@@ -39,8 +52,10 @@ for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
   if token not in sr:
     sr[token]=set()
   sr[token].add(tag)
+  if lemma not in sr_lemma:
+    sr_lemma[lemma]=set()
+  sr_lemma[lemma].add(token)
 log.write(repr(sr.items()[:10])+'\n')
-
 
 
 for index,token in enumerate(hr):
@@ -111,6 +126,37 @@ for index,token in enumerate(hr):
                    st_c.write(dia_mod_token.encode('utf8')+'\tšt\n')
 
 
+for lemma in hr_lemma:
+    # get the stem if croatian lemma ends with -irati and if it's longer than 7 characters
+    #  (arbitrary value to avoid false positivs)
+    # TODO examples of false positivs we are avoiding
+    if lemma.endswith("irati") and len(lemma)>7:
+        mod_lemma_ovati = lemma[:-5]+"ovati"
+        mod_lemma_isati = lemma[:-5]+"isati"
+
+        # if the same stem is present in serbian Apertium with the ending -ovati,
+        # write the stem in the output list (without diactritics)
+        if mod_lemma_ovati in sr_lemma: # mod_lemma_isati in sr:
+           if mod_lemma_ovati not in hr_lemma:
+               for mytoken in sr_lemma[mod_lemma_ovati]:
+                   dia_token = remove_diacritics(mytoken)
+                   ir_ov.write(dia_token.encode("utf8")+"\t"+"ovati"+"\n")
+               for mytoken in hr_lemma[lemma]:
+                   dia_token = remove_diacritics(mytoken)
+                   ir_ov.write(dia_token.encode("utf8")+"\t"+"irati"+"\n")
+
+        if mod_lemma_isati in sr_lemma: # mod_lemma_isati in sr:
+           if mod_lemma_isati not in hr_lemma:
+               for mytoken in sr_lemma[mod_lemma_isati]:
+                   dia_token = remove_diacritics(mytoken)
+                   ir_is.write(dia_token.encode("utf8")+"\t"+"isati"+"\n")
+               for mytoken in hr_lemma[lemma]:
+                   dia_token = remove_diacritics(mytoken)
+                   ir_is.write(dia_token.encode("utf8")+"\t"+"irati"+"\n")
+
+
+
+
     ## eventually  for creating -ist lexicon (vizazist)
     ## problem: false positivs
 
@@ -126,4 +172,6 @@ h_drop.close()
 k_h.close()
 st_c.close()
 log.close()
-#ist.close()
+ir_is.close()
+ir_ov.close()
+##ist.close()

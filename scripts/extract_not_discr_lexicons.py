@@ -19,9 +19,10 @@ verbs=gzip.open('../custom-lexicons/verbs-lexicon.gz', 'w')
 infverbs=gzip.open('../custom-lexicons/verbs-inf-lexicon.gz','w')
 presverbs=gzip.open('../custom-lexicons/verbs-pres-lexicon.gz','w')
 genitiv_og=gzip.open('../custom-lexicons/genitiv-og-eg-lexicon.gz','w')
+vmfverbs=gzip.open('../custom-lexicons/verbs-vmf-lexicon.gz','w')
 
 # Open dicts for preventing duplicates
-presverbsdict, chdict, infverbsdict, genitiv_og_dict, verbs_dict = {},{},{},{},{}
+presverbsdict, chdict, infverbsdict, genitiv_og_dict, verbs_dict, vmfverbsdict = {},{},{},{},{},{}
 
 # Iterate over Apertium lexicoans
 for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz']:
@@ -29,25 +30,31 @@ for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'
       token,lemma,tag=line.decode('utf8').split('\t')[:3]
       ## if "ć" or "č" are present in the token:
       if u"ć" in token or u"č" in token:
-          chdict[token]=1
+          chdict[token.lower()]=1
       ## if token is a verb:
       if tag.startswith(u"V"):
           tokennodia=remove_diacritics(token)
-          verbs_dict[tokennodia]=1
+          verbs_dict[tokennodia.lower()]=1
       ## if token is an infinitiv:
       if tag == u'Vmn':
           tokennodia=remove_diacritics(token)
-          infverbsdict[tokennodia]=1
+          infverbsdict[tokennodia.lower()]=1
       ## if token is in present tense:
       elif tag.startswith(u"Vmr"):
           tokennodia = remove_diacritics(token)
-          presverbsdict[tokennodia]=1
-      ## if ends with -og or -eg, if it's Adj, Number or Pronoun and if its masculin of neutrum singular, save it to the dict
-      elif (token.endswith(u"og") or token.endswith(u"eg")) and \
-              (tag.startswith("A") or tag.startswith("M") or tag.startswith("P")) and \
-              (u"msg" in tag or u"nsg" in tag):
+          presverbsdict[tokennodia.lower()]=1
+
+      elif tag.startswith(u"Vmf"):
           tokennodia = remove_diacritics(token)
-          genitiv_og_dict[tokennodia]=1
+          vmfverbsdict[tokennodia.lower()]=1
+
+      ## if ends with -og or -eg, if it's Adj or Number  and if its masculin of neutrum singular, save it to the dict
+      elif (token.endswith(u"og") or token.endswith(u"eg")) and \
+              (tag.startswith("A") or tag.startswith("M")) and \
+              (u"msg" in tag or u"nsg" in tag):
+          # for now ignore pronouns vtag.startswith("P") because mostly no -a drop (idea: another function only for pronouns)
+          tokennodia = remove_diacritics(token)
+          genitiv_og_dict[tokennodia.lower()]=1
 
 
 def writeinfile(mydict,myout):
@@ -62,6 +69,8 @@ writeinfile(verbs_dict,verbs)
 writeinfile(infverbsdict,infverbs)
 writeinfile(presverbsdict,presverbs)
 writeinfile(genitiv_og_dict,genitiv_og)
+writeinfile(vmfverbsdict,vmfverbs)
+
 
 ## problem for evaluation:
 ## not every -og/eg can become -oga:
