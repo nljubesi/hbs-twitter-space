@@ -13,7 +13,7 @@ def remove_diacritics(text):
 
 ## Open files for writing
 lexicon_dirs='../../lexicons/apertium'
-
+modals=gzip.open('../custom-lexicons/modalverbs-lexicon.gz','w')
 ch=gzip.open('../custom-lexicons/ch-lexicon.gz','w')
 verbs=gzip.open('../custom-lexicons/verbs-lexicon.gz', 'w')
 infverbs=gzip.open('../custom-lexicons/verbs-inf-lexicon.gz','w')
@@ -22,7 +22,16 @@ genitiv_og=gzip.open('../custom-lexicons/genitiv-og-eg-lexicon.gz','w')
 vmfverbs=gzip.open('../custom-lexicons/verbs-vmf-lexicon.gz','w')
 
 # Open dicts for preventing duplicates
-presverbsdict, chdict, infverbsdict, genitiv_og_dict, verbs_dict, vmfverbsdict = {},{},{},{},{},{}
+presverbsdict, chdict, infverbsdict, genitiv_og_dict, verbs_dict, vmfverbsdict, modalsdict = {},{},{},{},{},{},{}
+
+# for creating the modals list with duplicates & diacritics:
+#$ zgrep -E "\t(moći|znati|trebati|hteti|morati|smeti|želeti|voleti)\tV" apertium-hbs.hbs_SR_purist.mte.gz |cut -f 1 >  ../../hbs-twitter-space/srmodals.txt
+#$ zgrep -E "\t(moći|znati|trebati|htjeti|morati|smjeti|željeti|voljeti)\tV" apertium-hbs.hbs_HR_purist.mte.gz |cut -f 1 >  ../../hbs-twitter-space/hrmodals.txt
+#$ cat hrmodals.txt srmodals.txt |sort|uniq > modals.txt
+
+
+modallemmas=[u"moći",u"znati",u"trebati",u"hteti",u"htjeti",u"morati",u"smeti",u"smjeti",u"želeti",u"željeti",u"voleti",u"voljeti"]
+
 
 # Iterate over Apertium lexicoans
 for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz']:
@@ -36,7 +45,6 @@ for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'
           tokennodia=remove_diacritics(token)
           verbs_dict[token.lower()]=1
           verbs_dict[tokennodia.lower()]=1
-
       ## if token is an infinitiv:
       if tag == u'Vmn':
           tokennodia=remove_diacritics(token)
@@ -50,8 +58,8 @@ for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'
 
       elif tag.startswith(u"Vmf"):
           tokennodia = remove_diacritics(token)
+          vmfverbsdict[token.lower()]=1
           vmfverbsdict[tokennodia.lower()]=1
-
       ## if ends with -og or -eg, if it's Adj or Number  and if its masculin of neutrum singular, save it to the dict
       elif (token.endswith(u"og") or token.endswith(u"eg")) and \
               (tag.startswith("A") or tag.startswith("M")) and \
@@ -60,6 +68,10 @@ for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'
           tokennodia = remove_diacritics(token)
           genitiv_og_dict[token.lower()]=1
           genitiv_og_dict[tokennodia.lower()]=1
+      elif lemma in modallemmas:
+          tokennodia = remove_diacritics(token)
+          modalsdict[token.lower()]=1
+          modalsdict[tokennodia.lower()]=1
 
 
 def writeinfile(mydict,myout):
@@ -75,6 +87,7 @@ writeinfile(infverbsdict,infverbs)
 writeinfile(presverbsdict,presverbs)
 writeinfile(genitiv_og_dict,genitiv_og)
 writeinfile(vmfverbsdict,vmfverbs)
+writeinfile(modalsdict,modals)
 
 
 ## problem for evaluation:
