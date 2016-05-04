@@ -34,14 +34,18 @@ for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'
       ## if token is a verb:
       if tag.startswith(u"V"):
           tokennodia=remove_diacritics(token)
+          verbs_dict[token.lower()]=1
           verbs_dict[tokennodia.lower()]=1
+
       ## if token is an infinitiv:
       if tag == u'Vmn':
           tokennodia=remove_diacritics(token)
+          infverbsdict[token.lower()]=1
           infverbsdict[tokennodia.lower()]=1
       ## if token is in present tense:
       elif tag.startswith(u"Vmr"):
           tokennodia = remove_diacritics(token)
+          presverbsdict[token.lower()]=1
           presverbsdict[tokennodia.lower()]=1
 
       elif tag.startswith(u"Vmf"):
@@ -54,11 +58,12 @@ for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'
               (u"msg" in tag or u"nsg" in tag):
           # for now ignore pronouns vtag.startswith("P") because mostly no -a drop (idea: another function only for pronouns)
           tokennodia = remove_diacritics(token)
+          genitiv_og_dict[token.lower()]=1
           genitiv_og_dict[tokennodia.lower()]=1
 
 
 def writeinfile(mydict,myout):
-    for token in mydict:
+    for token in sorted(mydict):
         myout.write(token.encode("utf8")+"\n")
     myout.close()
     return myout

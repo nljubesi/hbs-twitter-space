@@ -592,16 +592,16 @@ def cyrillic(text):
 t="\t"
 
 out=gzip.open('hrsrTweets.var.gz','w')
-out.write(t+t+t+t+t+t+t+"text metainformation"+t+"yat"+t+"k (hr) vs. h (sr)"+t+"h-drop"+t+"r (hr) vs. r-drop(sr)"+t
-              +"št (sr) vs. ć (hr)"+t+"č & ć deviation"+t+"eu/au (hr) vs. ev/av (sr)"+t
-              +"sa & s deviation"+t+"tko vs. ko" +t+"šta vs. što"+t+"da li vs. je li"+t
-              +"usprkos/uprkos/unatoč"+t+"bre/bolan/bona/ba"+t+"mnogo/puno/vrlo/jako"+t
-              +"hr mjeseci vs. intern. mjeseci"+t+"tjedan/nedjelja/nedelja/sedmica"+t
-              +"drug/prijatelj (m/f)"+t+"treba da vs. trebaXXX da"+t
-              +"inf with/without -i"+t+"synt. future"+t+"'da' in text"+t
-              +"da+present"+t+"genitiv og/oga"+t+"irati/isati"+t
+out.write(t+t+t+t+t+t+t+"text metainformation"+t+"yat"+t+"k/h"+t+"h-drop"+t+"r/r-drop"+t
+              +"št/ć"+t+"č dev/ć dev"+t+"eu/au/ ev/av"+t
+              +"sa dev/s dev"+t+"tko/ko"+t+"šta/što"+t+"da li/je li"+t
+              +"usprkos/uprkos/unatoč"+t+"bre/bolan/ba"+t+"mnogo/puno/vrlo/jako"+t
+              +"HR months/international months"+t+"tjedan/nedjelja/nedelja/sedmica"+t
+              +"drug/prijatelj (m/f)"+t+"treba da/trebaXXX da"+t
+              +"inf with -i/inf without -i"+t+"synt. future/no synt. future"+t+"'da' in text"+t
+              +"da pres"+t+"og/oga"+t+"irati/isati"+t
               +"irati/ovati"+t+"inf/verb ratio"+t
-              +"Cyrillic/Latin"+"\n")
+              +"sr cyrillic/mix cyrillic/latin"+"\n")
 
 # ## Left out +ao_o(text)
 # ## Left out +ist(text)
