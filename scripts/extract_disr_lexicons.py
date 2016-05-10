@@ -33,7 +33,7 @@ hr_lemma={}
 sr_lemma={}
 
 
-for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
+for line in gzip.open(lexicon_dirs+'/hrLex_v1.0.gz'):
   token,lemma,tag=line.decode('utf8').split('\t')[:3]
   if token.lower()!=token:
     continue
@@ -46,7 +46,7 @@ for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz'):
 log.write(repr(hr.items()[:10])+'\n')
 
 
-for line in gzip.open(lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz'):
+for line in gzip.open(lexicon_dirs+'/srLex_v1.0.gz'):
   token,lemma,tag=line.decode('utf8').split('\t')[:3]
   if token.lower()!=token:
     continue

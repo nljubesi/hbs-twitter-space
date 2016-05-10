@@ -1,0 +1,71 @@
+
+Principle:
+
+Evaluate 500 random tweets for variables yat, …
+Evaluate only tweets which are not annotated as noise 
+
+
+Exapmple for extracting random 500 tweets and yat tags:
+
+
+
+
+YAT
+================
+
+Problems:
+=================
+
+smem -smijem (probably cas old apertium lexicon)
+
+
+??? NER: 
+
+Bijelo Dugme
+Pocinjee #PlesSaZvezdama
+
+
+??? Dj (đetetu)
+
+
+*** eo-io (yat)
+poneo -ponio, deo -dio 
+
+
+*** vidjet (cemo) vs videcemo
+
+
+*** Tokanisation
+
+Srbija više neće zavisiti od ruskog gasa! Eto rešenja!
+
+
+*** (FP) njega -nega
+
+*** (NA) umem umijem 
+
+*** (FP) necu -nijecu
+
+*** (FP) reko - rijeko
+
+
+
+
+
+
+INF WITH WITHOUT I:
+
+FP: POMOC - POMOCI
+FP: brati - brati
+
+
+is "inf without i" TP if part of "bit cu" contruction
+
+@IvanaMiseric hehe eto vidiš ma bit će još prilike ;)
+
+extremely unfreq. verbs - borati --> borat (inf without i)
+
+
+
+
+

@@ -1,0 +1,270 @@
+Evaluation of the version of 1.5.2016
+
+# everything without diacritics (resulted in many false positivs)
+
+
+
+1) chose the most important features to evaluate (the highest number of matches)
+
+nr e/nr tweets which are not noise
+nr je/nr tweets which are not noise
+
+
+YAT
+
+$ zgrep -E "\te\t" hrsrTweets.var.gz | cut -f 7,8,9| egrep "\tNA\t"| wc -l
+$ zgrep -E "\tje\t" hrsrTweets.var.gz | cut -f 7,8,9| egrep "\tNA\t"| wc -l
+
+je
+
+56512/1350101 = ca. 4%
+
+e
+
+229746/1350101 = ca 17%
+
+
+Consider that serbian tweets are more then 4 times more present than croatian tweets!
+
+
+KH
+
+zgrep -E "\tk\t" hrsrTweets.var.gz | cut -f 7,8,10| egrep "\tNA\t"| wc -l
+96
+
+zgrep -E "\th\t” hrsrTweets.var.gz | cut -f 7,8,10| egrep "\tNA\t"| wc -l
+3113
+
+
+! many false pos - > haljina - aljina (dialektal?)
+
+
+H DROP
+
+zgrep -E "\th\t" hrsrTweets.var.gz | cut -f 7,8,11| egrep "\tNA\t"| wc -l
+3113
+
+zgrep -E "\th_drop\t" hrsrTweets.var.gz | cut -f 7,8,11| egrep "\tNA\t"| wc -l
+251
+
+
+R DROP
+
+zgrep -E "\tr\t" hrsrTweets.var.gz | cut -f 7,8,12| egrep "\tNA\t"| wc -l
+     707
+zgrep -E "\tr_drop\t" hrsrTweets.var.gz | cut -f 7,8,12| egrep "\tNA\t"| wc -l
+    8520
+
+
+
+
+
+ŠT - Č
+
+zgrep -E "\tć\t" hrsrTweets.var.gz | cut -f 7,8,13| egrep "\tNA\t"| wc -l
+    1738
+zgrep -E "\tšt\t" hrsrTweets.var.gz | cut -f 7,8,13| egrep "\tNA\t"| wc -l
+    3675
+
+
+Ć DEV - Č DEV
+
+zgrep -E "\tć dev\t" hrsrTweets.var.gz | cut -f 7,8,14| egrep "\tNA\t"|wc -l
+     854
+zgrep -E "\tč dev\t" hrsrTweets.var.gz | cut -f 7,8,14| egrep "\tNA\t"|wc -l
+     799
+
+
+EU/AU - EV/AV
+
+$ zgrep -E "\teu/au" hrsrTweets.var.gz | cut -f 7,8,15 | egrep "\tNA\t" | wc -l
+     156
+
+$ zgrep -E "\tev/av" hrsrTweets.var.gz | cut -f 7,8,15 | egrep "\tNA\t" | wc -l
+     684
+
+
+S/SA DEV
+
+$ zgrep -E "\tsa dev" hrsrTweets.var.gz | cut -f 7,8,16 | egrep "\tNA\t" | wc -l
+   49883
+
+$ zgrep -E "\ts dev" hrsrTweets.var.gz | cut -f 7,8,16 | egrep "\tNA\t" | wc -l
+     287
+
+
+
+
+
+! TKO/KO
+
+$ zgrep -E "\ttko\t" hrsrTweets.var.gz | cut -f 7,8,17 | egrep "\tNA\t" | wc -l
+    1900
+
+$ zgrep -E "\tko\t" hrsrTweets.var.gz | cut -f 7,8,17 | egrep "\tNA\t" | wc -l
+   53090
+
+(do only tko-ko because neko, svako etc. also in hr as adjectiv!)
+
+
+! ŠTO/ŠTA
+
+# ono sto sam ti rekla present in both….
+
+$ zgrep -E "\tšto\t" hrsrTweets.var.gz | cut -f 7,8,18 | egrep "\tNA\t" | wc -l
+   57050
+
+$ zgrep -E "\tšta\t" hrsrTweets.var.gz | cut -f 7,8,18 | egrep "\tNA\t" | wc -l
+   35249
+
+
+JE LI/DA LI
+
+$ zgrep -E "\tje li\t" hrsrTweets.var.gz | cut -f 7,8,18 | egrep "\tNA\t" | wc -l
+   10744
+
+$ zgrep -E "\tda li\t" hrsrTweets.var.gz | cut -f 7,8,18 | egrep "\tNA\t" | wc -l
+   11872
+
+
+USPRKOS/UPRKOS/UNATOČ
+
+$ zgrep -E "\tuprkos\t" hrsrTweets.var.gz | cut -f 7,8,20 | egrep "\tNA\t"|wc -l &
+	152
+
+$ zgrep -E "\tusprkos\t" hrsrTweets.var.gz | cut -f 7,8,20 | egrep "\tNA\t"|wc -l 
+      19
+
+$ zgrep -E "\tunatoč\t" hrsrTweets.var.gz | cut -f 7,8,20 | egrep "\tNA\t"|wc -l 
+      16
+
+
+BRE/BOLAN/BA
+
+$ zgrep -E "\tbre\t" hrsrTweets.var.gz | cut -f 7,8,21 | egrep "\tNA\t"|wc -l 
+    4402
+$ zgrep -E "\tbolan\t" hrsrTweets.var.gz | cut -f 7,8,21 | egrep "\tNA\t"|wc -l 
+     203
+$ zgrep -E "\tba\t" hrsrTweets.var.gz | cut -f 7,8,21 | egrep "\tNA\t"|wc -l 
+     442
+
+
+MNOGO/PUNO/VRLO/JAKO
+
+$ zgrep -E "\tmnogo\t" hrsrTweets.var.gz | cut -f 7,8,22 | egrep "\tNA\t"|wc -l 
+    7635
+$ zgrep -E "\tpuno\t" hrsrTweets.var.gz | cut -f 7,8,22 | egrep "\tNA\t"|wc -l 
+    3001
+$ zgrep -E "\tvrlo\t" hrsrTweets.var.gz | cut -f 7,8,22 | egrep "\tNA\t"|wc -l 
+    1172
+$ zgrep -E "\tjako\t" hrsrTweets.var.gz | cut -f 7,8,22 | egrep "\tNA\t"|wc -l 
+    3320
+
+
+HR months/international months
+
+
+$ zgrep -E "\tHR months\t" hrsrTweets.var.gz | cut -f 7,8,23 | egrep "\tNA\t"|wc -l 
+     170
+$ zgrep -E "\tinternational months\t" hrsrTweets.var.gz | cut -f 7,8,23 | egrep "\tNA\t"|wc -l 
+    5741
+
+
+TJEDAN/NEDELJA/NEDJELJA/SEDMICA
+
+$ zgrep -E "\ttjedan\t" hrsrTweets.var.gz | cut -f 7,8,24 | egrep "\tNA\t"|wc -l 
+     408
+$ zgrep -E "\tnedelja\t" hrsrTweets.var.gz | cut -f 7,8,24 | egrep "\tNA\t"|wc
+    5460   86173  525238
+$ zgrep -E "\tnedjelja\t" hrsrTweets.var.gz | cut -f 7,8,24 | egrep "\tNA\t"|wc
+     354    5250   34673
+$ zgrep -E "\tsedmica\t" hrsrTweets.var.gz | cut -f 7,8,24 | egrep "\tNA\t"|wc
+     361    5801   34778
+
+
+DRUG/PRIJATELJ
+
+$ zgrep -E "\tdrug\t" hrsrTweets.var.gz | cut -f 7,8,25 | egrep "\tNA\t"|wc
+   11936  214018 1208377
+$ zgrep -E "\tprijatelj\t" hrsrTweets.var.gz | cut -f 7,8,25 | egrep "\tNA\t"|wc
+    3023   51837  335040
+
+
+!TREBA DA/TREBAX DA
+
+! Interesting only for all the persons except for 3.pers.sg (ona treba da / on treba da wold remain the same even if the speaker makes mistakes for all the other persons)
+
+! Evaluation as student linguistic task/ paper/?
+
+$ zgrep -E "\ttreba da\t" hrsrTweets.var.gz | cut -f 7,8,26 | egrep "\tNA\t"|wc
+    4824   98999  537997
+
+$ zgrep -E "\ttrebaX da\t" hrsrTweets.var.gz | cut -f 7,8,26 | egrep "\tNA\t"|wc
+     389    7634   41538
+
+
+INF WITH I/ INF WITHOUT I
+
+$ zgrep -E "\tinf with i\t" hrsrTweets.var.gz | cut -f 7,8,27 | egrep "\tNA\t"| wc
+   79169 1522072 8418047
+
+$ zgrep -E "\tinf without i\t" hrsrTweets.var.gz | cut -f 7,8,27 | egrep "\tNA\t"| wc
+   23590  443444 2498004
+
+
+SYNT INF/NOSYNT INF
+
+$ zgrep -E "\tsynt inf\t" hrsrTweets.var.gz | cut -f 7,8,28 | egrep "\tNA\t"| wc
+   30613  510976 2943317
+$ zgrep -E "\tnosynt inf\t" hrsrTweets.var.gz | cut -f 7,8,28 | egrep "\tNA\t"| wc
+    1198   20754  122450
+
+
+#problem:
+obuces -> obučeš obućeš
+
+
+DA IN TEXT
+
+$ zgrep -E "\tda\t" hrsrTweets.var.gz | cut -f 7,8,29 | egrep "\tNA\t"|wc
+  294303 5222763 28264958
+
+! DA PRES
+
+# ADD MODALS!!!
+
+$ zgrep -E "\tda pres\t" hrsrTweets.var.gz | cut -f 7,8,30 | egrep "\tNA\t"|wc
+   87538 1606407 8548837
+
+
+OGA/OG
+
+$ zgrep -E "\toga\t" hrsrTweets.var.gz | cut -f 7,8,31 | egrep "\tNA\t"| wc -l
+     581    
+$ zgrep -E "\tog\t" hrsrTweets.var.gz | cut -f 7,8,31 | egrep "\tNA\t"| wc -l
+   26130  
+
+
+IRATI/ISATI
+
+$ zgrep "." hrsrTweets.var.gz|cut -f 7,8,32| egrep "\tisati" |  egrep "\tNA\t"|wc -l
+    3314   
+$ zgrep "." hrsrTweets.var.gz|cut -f 7,8,32| egrep "\tirati" |  egrep "\tNA\t"|wc -l
+     278    
+
+
+IRATI/OVATI
+
+$ zgrep "." hrsrTweets.var.gz|cut -f 7,8,33| egrep "\tirati" | egrep "\tNA\t"|wc -l
+     496    
+$ zgrep "." hrsrTweets.var.gz|cut -f 7,8,33| egrep "\tovati" | egrep "\tNA\t"|wc -l
+    5736  
+
+
+
+MIX CYRILLIC
+
+$ zgrep "." hrsrTweets.var.gz|cut -f 7,8,35| egrep "\tmix cyrillic" |egrep "\tNA\t"|wc
+     674   10389   80277
+
+

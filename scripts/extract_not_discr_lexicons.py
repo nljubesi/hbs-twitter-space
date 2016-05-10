@@ -34,7 +34,7 @@ modallemmas=[u"moći",u"znati",u"trebati",u"hteti",u"htjeti",u"morati",u"smeti",
 
 
 # Iterate over Apertium lexicoans
-for myfile in [lexicon_dirs+'/apertium-hbs.hbs_HR_purist.mte.gz', lexicon_dirs+'/apertium-hbs.hbs_SR_purist.mte.gz']:
+for myfile in [lexicon_dirs+'/hrLex_v1.0.gz', lexicon_dirs+'/srLex_v1.0.gz']:
     for line in gzip.open(myfile):
       token,lemma,tag=line.decode('utf8').split('\t')[:3]
       ## if "ć" or "č" are present in the token:
