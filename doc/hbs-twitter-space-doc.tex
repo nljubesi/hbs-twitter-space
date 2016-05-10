@@ -1,0 +1,575 @@
+\documentclass[a4paper]{article}
+
+\usepackage[english,russian]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{hyperref}
+\usepackage{courier}
+\usepackage{booktabs}
+\usepackage{fourier}
+
+
+
+\title{Spatial models of Croatian, Bosnian and Serbian \\\texttt{hbs-twitter-space}/\\  \Large Documentation}
+%\author{You}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+%\begin{abstract}
+% our abstract.
+%\end{abstract}
+
+% \section{Related work}
+
+% \begin{itemize}
+% \item \url{http://aclweb.org/anthology/E/E14/E14-1011.pdf}
+% \item \url{http://aclweb.org/anthology/W15-4302}
+% \end{itemize}
+
+\section{Synopsis}
+
+The goal of \texttt{hbs-twitter-space} is to prepare an annotated corpus of specific linguistic features contained in Bosnian, Croatian, Montenegrinian and Serbian (BKMS) tweets. The main question this package helps to solve is: does the distribution of linguistic variables follow the BKMS' administrative pattern? 
+
+%(example)
+%(pic)
+
+\section{Architecture}
+
+\texttt{hbs-twitter-space/}
+% Take it from readme
+
+\begin{itemize}
+\item \texttt{../lexicons/apertium-hbs.hbs\_HR\_purist.mte.gz}
+\item \texttt{../lexicons/apertium-hbs.hbs\_SR\_purist.mte.gz}
+\item \texttt{hrsrTweets.gz}%: Twitter corpus (input)
+\item \texttt{hrsrTweets.var.gz}%: Twitter corpus with annotated features for each tweet (output)
+\item \texttt{extract\_variables.py}
+\item \texttt{custom-lexicons}/
+\begin{itemize}
+\item \texttt{diftong-v-lexicon.gz} %-- words having eu/ev or au/av opposition and their labels
+\item \texttt{hdrop-lexicon.gz} %-- words having h/h-drop opposition at the beginning of words and their labels
+\item \texttt{kh-lexicon.gz} %-- words containing k/h opposition at the beginning of words and their labels
+\item \texttt{rdrop-lexicon.gz} %-- words having h/h-drop opposition at the end of words and their labels
+\item \texttt{st-c-lexicon.gz} %-- words containing št/ć opposition and their labels
+\item \texttt{yat-lexicon.gz} %-- words with e and (i)je yat-reflex and their labels
+\item \texttt{ch-lexicon.gz} %-- words containing č and/or ć and their lables
+\item \texttt{genitiv-og-eg-lexicon.gz} %-- adjectives, pronouns and numeralia in masc/neutr sg. ending with -og/eg
+\item \texttt{hr-months.gz} %-- Croatian months (siječanj, veljača, ...)
+\item \texttt{int-months.gz} %-- international months (januar, februar, ...)
+\item \texttt{ir-is-lexicon.gz} %-- verbs having lemmas ending with -isati/irati
+\item \texttt{ir-ov-lexicon.gz} %-- verbs having lemmas ending with -ovati//irati
+\item \texttt{verbs-inf-lexicon.gz} %-- verbs in infinitive
+\item \texttt{verbs-lexicon.gz} %-- verbs
+\item \texttt{verbs-pres-lexicon.gz} %-- verbs in presens
+%\item \texttt{verbs-vmf-stem-lexicon.gz} %-- stems of verbs in synthetic future tense
+\end{itemize}
+\item scripts/
+\begin{itemize}
+\item \texttt{extract\_discr\_lexicons.py}
+\item \texttt{extract\_not\_discr\_lexicons.py}
+%\item \texttt{extract\_vmf\_stems.py}
+\end{itemize}
+\item \texttt{lang-id/}
+\item \texttt{evaluation/}
+\end{itemize}
+ %-- contains evaluation tables for each linguistic variable extracted with extract_variables.py
+
+% lang-id/ -- contains manually annotated tweets according to their language (Croatian/Bosnian/Serbian/Montenegrinian)
+
+% hrsrTweets.var.gz -- Twitter Corpus with annotated features for each tweet (output)
+
+% custom-lexicons/ -- contains customized lexicons needed for extraction of linguistic variables
+
+% evaluation/ -- contains evaluation tables for each linguistic variable extracted with extract_variables.py
+
+% lang-id/ -- contains manually annotated tweets according to their language (Croatian/Bosnian/Serbian/Montenegrinian)
+
+
+\section{Step-by-step instructions}
+
+Create customized lexicons:
+\begin{itemize}
+\item \$ \texttt{python extract\_discr\_lexicons.py}
+\item \$ \texttt{python extract\_not\_discr\_lexicons.py}
+\end{itemize}
+
+Annotate the Twitter corpus with linguistic variables
+\begin{itemize}
+\item \$ \texttt{python extract\_variables.py}
+\end{itemize} 
+
+% \subsection{Use case diagram}
+
+% XXX
+
+% call scripts
+\section{Components}
+\subsection{hrsrTweets.gz}
+
+\begin{itemize}
+
+\item Twitter corpus
+\item size: 1'350'101 tweets
+\item tweets with "guessed language" Serbian, Croatian or Bosnian: 738'589
+\item tweets with "guessed language" English: 226'706
+\item The corpus contains (tab-separated):
+\begin{enumerate}
+\item tweet id (ex.: 463380928270962688)
+\item user (ex.: ugromir)
+\item time (ex.: 2014-05-05T18:13:17)
+\item "guessed" tweet language + certainty (ex.: sl:0.851)
+\item longitude (ex.: 21.9306105)
+\item latitude (ex.: 43.335324)
+\item tweet (ex.: @malibambi znas kakav sam, sta drugo da ti kazem)
+\end{enumerate}
+%\item Example line:
+\end{itemize}
+
+
+
+\subsection{apertium-hbs.hbs\_HR\_purist.mte.gz}
+\begin{itemize}
+\item (currently work in progress)
+\item Morphologic lexicon of Croatian language
+\end{itemize}
+
+
+\subsection{apertium-hbs.hbs\_SR\_purist.mte.gz}
+\begin{itemize}
+\item Morphologic lexicon of Serbian language
+\end{itemize}
+
+\subsection{scripts/}
+The python scripts in scripts/ produce customized lexicons which are later used in the extraction of linguistic variables from the Twitter corpus. Except for ch-lexicon.gz, the words in all the customized lexicons are stripped of diacritic marks.
+
+\begin{itemize}
+\item \texttt{extract\_discr\_lexicons.py}
+\begin{itemize}
+\item extracts customized lexicons for discriminative features (either HR or SR)
+\item idea: iterate the HR Apertium lexicon and when a specific feature is encountered (ex. the yat-reflex -ije- in "lijep") replace it with its opposition (ex. -e-: lijep -> lep). If the replaced version belongs to the same pos-tag and if it is contained in SR Apertium but not in HR one, add both words to the output list and mark their variables in the same file (ex. lijep (tabulator) je (newline) lep (tabulator) e)
+\item outputs:
+\begin{itemize}
+\item yat-lexicon.gz
+\item diftong-v-lexicon.gz
+\item hdrop-lexicon.gz
+\item kh-lexicon.gz
+\item st-c-lexicon.gz
+\item ir-is-lexicon.gz
+\item ir-ov-lexicon.gz
+
+\end{itemize}
+%\item \danger the output is without diacritic marks
+\end{itemize}
+
+\item \texttt{extract\_not\_discr\_lexicons.py}
+\begin{itemize}
+\item extracts customized lexicons for non-discriminative features (lexicons may contain same items for SR and HR)
+\item idea: extract from Apertium lexicon all SR and HR words having the specific pos-tag (ex. verbs) or/and a specific string sequence (ex. ending -og in "starog") and save each list of words in a separated lexicon
+\item outputs:
+\begin{itemize}
+\item ch-lexicon.gz
+\item verbs-lexicon.gz
+\item verbs-inf-lexicon.gz
+\item verbs-pres-lexicon.gz
+\item verbs-vmf-lexicon.gz
+\item genitiv-og-eg-lexicon.gz
+
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+
+\subsection{custom-lexicons/}
+
+TABLE\\
+custom lex\\
+seize\\
+structure
+\begin{table}[]
+\centering
+\caption{Metainformation about lexicons}
+\label{my-label}
+\begin{tabular}{llll}
+Lexicon & Size (tokens) & \begin{tabular}[c]{@{}l@{}}Manually \\ added\end{tabular} & Structure \\
+ch-lexicon.gz & 314915 &  & token \\
+diftong-v-lexicon.gz & 932 &  & token+var \\
+genitiv-og-eg-lexicon.gz & 64811 &  & token \\
+hdrop-lexicon.gz & 322 &  & token+var \\
+hr-months.gz & 84 & x & token \\
+int-months.gz & 79 & x & token \\
+ir-is-lexicon.gz & 6066 &  & token+var \\
+ir-ov-lexicon.gz & 11846 &  & token+var \\
+kh-lexicon.gz & 1026 &  & token+var \\
+rdrop-lexicon.gz & 16 & x & token+var \\
+st-c-lexicon.gz & 686 &  & token+var \\
+verbs-inf-lexicon.gz & 18123 &  & token \\
+verbs-lexicon.gz & 243538 &  & token \\
+verbs-pres-lexicon.gz & 59354 &  & token \\
+verbs-vmf-lexicon.gz & 47355 &  & token \\
+yat-lexicon.gz & 105726 &  & token+var
+\end{tabular}
+\end{table}
+
+\subsection{extract\_variables.py}
+The functions in extract\_variables.py take the tokenized tweet text as input, check if it contains the specific linguistic variable and output the related variable. The output variable is scalar. If a certain tweet contains two oppositions, the function returns "both". If it does not contain the specific variable, the respective function returns "NA".
+
+\begin{itemize}
+\item remove\_diacritics(text)
+\item tokenize(text)
+\item clean(text): function for assigning the meta-information for each tweet. 
+It returns:
+\begin{itemize}
+%zgrep "." hrsrTweets.var.gz| cut -f 7-8| grep "\tEnglish"|head -2
+\item automatic (I'm at Komercijalna Banka - @kombank (Novi Sad, Serbia))
+\item English tweet (RT @RZual: RT if you would bend her over!)
+\item noise website (\^\_\^ http://t.co/FbXagAKvPd)
+\item noise user (@OZKARBM :))
+\item website (http://t.co/rBoVPHZ2rA)
+\item is not alpha (!!!!!!1)
+\item NA %(kolko mi se malopre spavalo sad mi se uopste ne spava)
+\end{itemize}
+
+\item yat(text)\\
+It returns:
+\begin{itemize}
+\item je (A sta bi sa onim" l\textbf{ije}pa njihova"?)
+\item e (kolko mi se malopr\textbf{e} spavalo sad mi se uopste ne spava)
+\item both (Bolje ovako poned\textbf{e}ljkom odradit prvu sm\textbf{e}nu zam\textbf{e}ne i vozdra c\textbf{ije}lu ned\textbf{e}lju spavam do sutra.)
+\item NA
+\end{itemize}
+
+\item kh(text)\\
+It returns:
+\begin{itemize}
+\item h (Desiće se, valjda, da i ja jednom izađem iz \textbf{h}aosa.)
+\item k (He, he, he! Dobro da nije s njim u suradnji, vijest bi bila u Crnoj \textbf{k}ronici! :D)
+\item both (none found)
+\item NA
+\end{itemize}
+
+\item hdrop(text)\\
+It returns:
+\begin{itemize}
+\item h (RT @AJBalkans: Tema: Nastanak i \textbf{h}istorijski razvoj selefizma)
+\item h\_drop (Škotlanđani čuje li se \textbf{i}storijsko DA , il je zapelo negde oko Dambartona .)
+\item both (Viđet' mene u \textbf{h}aljinu je \textbf{i}storijski trenutak)
+\item NA
+\end{itemize}
+
+\item rdrop(text)\\
+It returns:
+\begin{itemize}
+\item r (@MarijaZG jeo ih juče\textbf{r} :D)
+\item r\_drop (Svi hoće sve za juč\textbf{e}.)
+\item both (none found)
+\item NA
+\end{itemize}
+
+\item st\_c(text)\\
+It returns:
+\begin{itemize}
+\item št (@cpcp89 a ko je to uop\textbf{št}e?)
+\item ć (Dragi @Jutarnji u Rijeci ne pada kisa uop\textbf{c}e[...])
+\item both (none found)
+\item NA 
+\end{itemize}
+
+
+\item c\_ch(text)\\
+It returns:
+\begin{itemize}
+\item ć dev (Pij, imamo gdje povračati.)
+\item č dev (Jedi,pij jogurt,žvaći burek) %\danger
+\item both (ČAO MAĆKO KOJE SI GOD JESI LI ZA HOT SMS MMS GPS PGP RTS ILI NEŠTO VIŠE?)
+\item NA
+\end{itemize}
+
+\item diftong(text)\\
+It returns:
+\begin{itemize}
+\item eu/au (Danas mi je \textbf{eu}ropski dan :-)[...])
+\item ev/av (@stonexman na \textbf{ev}ropskom putu gasa.)
+\item both (none found)
+\item NA
+\end{itemize}
+
+\item sa\_s(text)\\
+It returns:
+\begin{itemize}
+\item s dev (Vazda mi je san bio ono kad se nedje ide s autobusom\textbf{ s s}kolom kad svi udju ja izadjem i prevrnem autobus)%\danger
+\item sa dev (Licis mi na nekoga ko ima seks samo \textbf{sa u}gasenim svetlom.)%\danger
+\item both
+\item NA
+%% extrem viel FP bei s dev
+\end{itemize}
+
+
+\item tko\_ko(text)\\
+%% problem neko & neko non extactly the same
+%% evaluation needed
+It returns:
+\begin{itemize}
+\item tko (Kuca Mujo na vrata vidovnjaka. - \textbf{Tko} je? Šta \textbf{tko} je?! I ti si mi neki vidovnjak, pih!)
+\item ko (\textbf{Ko} je rek'o kafa?)
+\item both (neka me \textbf{neko} vodi 14og u Bl na parni valjak, moze ?” Evo i mi objavimo pa se mozda \textbf{netko} nadje :))
+\item NA
+\end{itemize}
+
+The function returns "tko" (resp. "ko) not only if the tweet contains "tko" but also "netko", "svatko", etc.
+
+\item sta\_sto(text)\\
+% croatian only sto, serbian both (sto is rel. pronoun)
+% sto is considered without diacritics, that means that sto (100) may also be falsly recognized
+It returns:
+\begin{itemize}
+\item što %\danger
+\item šta (Pa me sutra pitaj \textbf{šta} radim...ccc	šta)%\danger
+\item both (Na sva pitanja odgovaram sa 'eo'. Navika ili ne znam \textbf{sto} jee.)
+\item NA
+\end{itemize}
+"sto" is considered without diacritics: it means that tweets containing "sto" intended as number (100) may also be falsly marked
+
+
+
+\item da\_je\_li(text)\\
+It returns:
+\begin{itemize}
+\item da li (O \textbf{da li} sam se ja to upravo odljubila)
+\item je li (\textbf{jel} jos neko izvaljuje koliko sam ja nepismen na ovom tviteru ili samo ja?)
+\item both (\textbf{Jel} zna neko \textbf{da li} radi sutra studentska ambulanta?)
+\item NA
+\end{itemize}
+
+\item usprkos(text)\\
+It returns:
+\begin{itemize}
+\item usprkos (@MRenic a svi su nešto bolesni \textbf{usprkost} suncu i prekrasnom danu!)
+\item uprkos (Dobro jutro,\textbf{uprkos} svim sranjima)
+\item unatoč (nikad lošije izdanje na tenisu, \textbf{unatoč} pobjedi. ccc.)
+\item NA
+\end{itemize}
+
+\item treba\_da(text)\\
+It returns:
+\begin{itemize}
+\item treba da (Pijem kafu i kuliram a \textbf{treba} da ucim eee)
+\item trebaX da (\textbf{Trebas }da prodjes ono najgore da dobijes ono najbolje)
+\item both (Djeca \textbf{trebaju} da budu pioniri i \textbf{treba} da polažu zakletvu. Ima u tome nešto.)
+\item NA
+\end{itemize}
+
+
+\item bre(text)\\
+It returns:
+\begin{itemize}
+\item bre (Kakav \textbf{bre} ses, sta mi tu glumite ludila i finocu!)
+\item bolan (idi \textbf{bolan} umij se) (same for "bona")
+\item ba (zadnje fizicko.. de \textbf{ba} nemoguce	\textbf{ba})
+\item NA
+\end{itemize}
+
+\item mnogo(text)\\
+It returns:
+\begin{itemize}
+\item mnogo (Mada se ne razlikuje \textbf{mnogo} od stare)
+\item puno (\textbf{Puno} bolje razumijem njemački nego ženski.)
+\item vrlo (Evo slusam, \textbf{vrlo} pazljivo, i da definitivno glupost nema granice...)
+\item jako (Jako sam lepa veceras. Vodi me na pivo i luk.)
+\item NA
+\end{itemize}
+Idea: add "veoma"?
+
+\item months(text)\\
+It returns:
+\begin{itemize}
+\item mnogo
+\item HR months (Ljeto u \textbf{studenom})
+\item international months (Je li prosao 8. \textbf{mart} ?)
+\item both (prvoga \textbf{maja} hladio sam jaja. sada prvoga \textbf{svibnja} muci nas krivnja ;) ak me razmete)
+\item NA
+\end{itemize}
+
+\item tjedan(text)\\
+%% nedjelja: mehrdeutig
+It returns:
+\begin{itemize}
+\item tjedan (U ova dva \textbf{tjedna} godisnjeg, danas se prvi put lijepo naspavala:))
+\item sedmica (Ponedeljak je samo još jedan dan u \textbf{sedmici} ... do oktobra)
+\item nedelja (I onda sta mi je pre ciniti kada odem posle 3 \textbf{nedelje}?!?)
+\item nedjelja (Kao slag na tortu, white chicks na kraju ove dosadne \textbf{nedjelje}...)
+\end{itemize}
+Possible problem: ambiguity ned(j)elja (sunday/week)
+
+\item drug(text)\\
+It returns:
+\begin{itemize}
+\item  drug (Hajde, Boze, budi \textbf{drug}, pa okreni jedan krug unazad planetu...)
+\item prijatelj (Nina nedostajes mi, Nina vrati se.... Nina.... Moj jedini \textbf{prijatelju}...)
+\item both (AnaMarija ti je \textbf{drugarica}? Mnogo fina i lepa \textbf{prijateljica}.)
+\item NA
+\end{itemize}
+All the declinated forms are considered
+
+
+
+\item inf\_without\_i(text)\\
+It returns:
+\begin{itemize}
+\item inf with i (Plasim se da mu pisem, da ce me to jos vise povredit\textbf{i})
+\item inf without i (može a i ne mora \textbf{bit}')
+\item both (Nikad necu moc\textbf{i} presta\textbf{t }da izgovaram to 'ah' na kraju rijeci)
+\item NA 
+\end{itemize}
+
+\item synt\_future(text)\\
+It returns:
+\begin{itemize}
+\item synt inf (ne lajkaj mi sliku od prije 17 godina \textbf{ranicu} te)
+\item nosynt inf (\textbf{Poludet cu} opet me napala upala mjehura :()
+\item both (none found)
+\item NA
+\end{itemize}
+
+\item da(text)\\
+It returns:
+\begin{itemize}
+\item da (presence of "da" in the tweet)
+\item NA
+\end{itemize}
+
+\item da\_present(text)\\
+%% explain the principle
+%%  many FP
+%% TODO modal verb + da present (ask Nikola)
+It returns:
+\begin{itemize}
+\item da pres (Volela bih \textbf{da se udam} za @ademljajic Pazila bih ga i mazila...)
+\item NA
+\end{itemize}
+Returns "da pres" if "da" is followed by verb in present tense in the +2 window,
+      and NA if there is no "da" in the tweet \\
+To be decided whether to return "da pres" only if precedeed by a modal verb (and with which context window).
+
+\item genitiva(text)\\
+It returns:
+% for now ignore per pronouns
+\begin{itemize}
+\item oga (Divan pocetak radn\textbf{oga} dana)
+\item og (\@LadyAnjanas cijelu kitu gorsk\textbf{og} cvijeca a kamo li jednu ružu)
+\item both
+\item NA 
+\end{itemize}
+Endings -ega/eg are also returned as oga/og
+
+\item ir\_is(text)\\
+It returns:
+\begin{itemize}
+\item irati (pogledajte kako je defin\textbf{irana} pobkeda u 2. krugu)
+\item isati (inspir\textbf{isan} si večeras)
+\item both (U BiH malo šta \textbf{funkcioniše} kako treba I sve to bez obzira na enorman trud SNSD-a da BiH \textbf{profunkcionira})
+\item NA
+\end{itemize}
+
+\item ir\_ov(text)\\
+It returns:
+\begin{itemize}
+\item irati (Ni prvu kavu nisam popio a vec kombiniram. Dobro jutro tl.)
+\item ovati (Ako vas interesuje sta radim evo gledam bumbu sa sestrom od sest meseci)
+\item both ("Šta jadni narod, jadni narod, narod treba da se organi\textbf{zira} kao što smo se organiz\textbf{ovali} prije pedeset godina i da se bori" - Džoni Štulić)
+\item NA
+\end{itemize}
+
+\item inf\_verb\_ratio(text)
+It returns:
+\begin{itemize}
+\item  verbs in infinitiv/all verbs in tweet (float) (\textit{Onokad buraz krene postavljati sav beštek po špagi. :D [...]}: 0.5)
+)
+\end{itemize}
+
+\item cyrillic(text)\\
+It returns:
+\begin{itemize}
+\item mix cyrillic (я shožu s uma, mne malo malo malo tebя)
+\item sr cyrillic (none found (!)) %\danger
+\item latin
+\end{itemize}
+Mix because different Cyrillic alphabets (not only Serbian) are present
+
+\end{itemize}
+
+
+
+\subsection{lang-id/}
+\begin{itemize}
+\item Contains manually annotated tweets according to their language 
+\begin{itemize}
+\item hr (Croatian)
+\item sr (Serbian)
+\item ba (Bosnian)
+\item cg (Montenegrinian)
+\end{itemize}
+\end{itemize}
+
+
+\subsection{evaluation/}
+TBA
+
+
+
+
+\section{Further work}
+
+Other features we could consider:
+
+\begin{itemize}
+\item phonetic
+\begin{itemize}
+\item Opposition -u/e (burza vs. berza)
+\item Opposition -u/i (tanjur vs. tanjir)
+\item Opposition -o/u (baron vs. barun)
+\item Opposition -io/iju (milion vs. milijun)
+\item Opposition -i/je after l/t	 (stjecaj vs. sticaj)
+\item Opposition -s/z (inzistirati vs. insistirati)
+\item Opposition -s/c (financije vs. finansije)
+\item Opposition -t/ć (sretan vs. srećan)
+\item Opposition -l/o after o (sol vs. so)
+\item Opposition -v/h (muva vs. muha)
+\item Opposition -cija/tija (diplomacija vs. diplomatija)
+\item Ending -i vs. no ending for verbs ending with -ti in futur 1 having form infitiv+dek. verb "biti" (biti ću/bit ću)
+\item Ending -i vs. no ending for verbs ending with -ći in futur 1 having the form infitiv+dek. verb "biti" (peć ću/peći ću)
+
+
+\end{itemize}
+\item morphologic
+\begin{itemize}
+\item Opposition -kinja/ica (studentkinja vs. studentica)
+\item Opposition -ka/ica (profesorka vs. profesorica)
+\item Opposition -ac/telj (gledalac vs. gledatelj)
+\item Suffix -a vs. no suffix (planeta vs. planet)
+\end{itemize}
+\item lexical
+\begin{itemize}
+\item toponomy (Španjolska vs. Španija)
+\item kamo/kuda % problem: kuda present in Croatian
+\item hiljada/tisuća
+\item umjeti/znati
+\item uslov/uvijet
+\item ćuteti/šutjeti
+\item izvini/oprosti
+\item kafa/kava
+\end{itemize}
+\item Montenegrinian
+\begin{itemize}
+\item s\textbf{ju}tra/sutra
+\item \textbf{dj}eca/đeca
+\end{itemize}
+\end{itemize}
+
+
+
+\end{document}\textsl{•}
