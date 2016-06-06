@@ -5,8 +5,7 @@ Evaluate 500 random tweets for variables yat, …
 Evaluate only tweets which are not annotated as noise 
 
 
-Exapmple for extracting random 500 tweets and yat tags:
-
+Example for extracting random 500 tweets and yat tags:
 
 
 
@@ -15,8 +14,6 @@ YAT
 
 Problems:
 =================
-
-smem -smijem (probably cas old apertium lexicon)
 
 
 ??? NER: 
@@ -28,11 +25,11 @@ Pocinjee #PlesSaZvezdama
 ??? Dj (đetetu)
 
 
-*** eo-io (yat)
++ *** eo-io (yat)
 poneo -ponio, deo -dio 
 
 
-*** vidjet (cemo) vs videcemo
+1 *** vidjet (cemo) vs videcemo
 
 
 *** Tokanisation
@@ -47,9 +44,6 @@ Srbija više neće zavisiti od ruskog gasa! Eto rešenja!
 *** (FP) necu -nijecu
 
 *** (FP) reko - rijeko
-
-
-
 
 
 

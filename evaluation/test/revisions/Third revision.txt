@@ -1,0 +1,9 @@
+Third revision
+
+Evaluation principle:
+
+Evaluate each variable in random 500 tweets 
+
+zgrep -E "." hrsrTweets.var.new.gz | cut -f 7- | gshuf|head -500 >evaluation/evalrandom500.tsv
+
+Evaluate a repräsentative number of tweets for each variable

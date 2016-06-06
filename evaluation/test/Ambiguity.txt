@@ -1,0 +1,24 @@
+
+1) normal AMBIGUITY
+
+biće (bit će or biće)
+
+to resolve: tagging/parsing needed
+
+
+2) AMBIGUITY caused by stripping diacritics:
+
+pretičete (pres. of preticati) -> preticete (pres. of preticati and futur 2.pers.pl of pretiti)
+
+Kada pretičete, obavezno obratite paznju da vas Mirko Alvirović ne snimi!
+
+
++ Resolved by storing words with and vithout diacritics in the custom lexicons 
+
+Approximate nr. of tweets with diacritics: (28%)
+
+
+
+
+
+

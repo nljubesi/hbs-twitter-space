@@ -36,10 +36,9 @@ modalverbs={pres.rstrip("\n").decode("utf8"):1 for pres in gzip.open('custom-lex
 genitiv_og_dict={genitiv_og.rstrip("\n").decode("utf8"):1 for genitiv_og in gzip.open('custom-lexicons/genitiv-og-eg-lexicon.gz')}
 intmonths={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/int-months.gz')}
 hrmonths={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/hr-months.gz')}
-dog={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/dogoditi-dogadjati.gz')}
-des={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/desiti-desavati.gz')}
-#ist_dict={ist.rstrip("\n"):1 for ist in gzip.open('custom-lexicons/ist.gz')}
 
+# dog={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/dogoditi-dogadjati.gz')}
+# des={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/desiti-desavati.gz')}
 
 
 
@@ -106,6 +105,8 @@ def clean(text,lang):
 
 def yat(text):
   """returns "e" if ekavica and "je" if (i)jekavica, NA if none """
+
+  # TODO: recognize vidjecemo vs videcemo
   myyat=check_var_in_tab_sep_lexicons(text,yat_lexicon)
   return myyat
 
@@ -117,7 +118,6 @@ def kh(text):
 
 def hdrop(text):
 #  """returns h if initial "h" is not dropped and "h_drop" if it is dropped (ex. historija/istorija), NA if none """
-
     myhdrop=check_var_in_tab_sep_lexicons(text,hdrop_lexicon)
     return myhdrop
 
@@ -174,16 +174,15 @@ def sa_s(text):
     other (more complicated) source http://jezicna-pomoc.lss.hr/jsavjeti.php?view=2"""
 
     text = text.lower()
-    #s_re_dev=re.search(r'\bs\s[szšž]',text)
-    #sa_re_dev=re.search(r'\bsa\s(?![szšžaeiou])',text)
-    s_re_dev = re.findall(ur'\bs\s[sz]\w+?\b', text, re.UNICODE)
-    sa_re_dev=re.findall(ur'\bsa\s[^szšžaeiou]\w+?\b',text, re.UNICODE)
+    s_re_dev = re.findall(ur'\bs\s[szšž]\w+?\b', text, re.UNICODE)
+    sa_re_dev=re.findall(ur'\bsa\s[^szšž]\w+?\b',text, re.UNICODE)
+    sa_mnom=re.findall(ur'\bsa mnom\b',text, re.UNICODE)
 
     if s_re_dev and sa_re_dev:
         return (u"both", s_re_dev+sa_re_dev)
     if s_re_dev:
         return (u"s-dev",s_re_dev)
-    elif sa_re_dev:
+    elif sa_re_dev and (sa_mnom !=sa_re_dev):
         return (u"sa-dev",sa_re_dev)
     else:
         return u"NA"
@@ -196,8 +195,15 @@ def sa_s(text):
 #
 #
 def tko_ko(text):
-    """ returns "tko" if tko (and other pronuns with tk) and "ko" if "ko" (and other pronuns with ko),
-     "both" if both and "NA" if none """
+    """ returns 'tko' if tko  and 'ko' if 'ko'"""
+    # TODO
+    # if next token == VERB
+    # if not previous token == VERB
+    # if not next token == PER (ja, ti, on, ona, mi, vi, oni)
+    # if not next token == NER
+    # if not next token == NOUN in Nominativ
+    # ko + mene, me, te, tebe, njega, ga, nju, ju, nas, vas, ih
+    # ko + ne
     tok = tokenize(text.lower())
     if u"tko" in tok and u"ko" in tok:
         return (u"both", [u"tko", u"ko"])
@@ -332,6 +338,9 @@ def mnogo(text):
 def months(text):
     """returns "HR months" if croatian month names and "international months"
      if international, both if both and NA if none  """
+
+    # TODO if not Maja (m uppercase) or maja \w+i(c|ć)
+
     text = text.lower()
     hr,international = [],[]
     for token in tokenize(text):
@@ -374,14 +383,13 @@ def tjedan(text):
 #
 def drug(text):
     """returns drug/prijatelj/both/NA"""
-    #TODO: include variations such as drugaricin, drugarski etc?
+    # TODO 1: include variations such as drugaricin, drugarski etc?
+    # TODO 2: get rid of flase positivs like na drugom, nekom drugom, jedno drugo, drugu stranu, drugu sezonu, druga osoba
+
     text = text.lower()
     drug_all=re.findall(ur'\b(drug(a|u|om|ovi|ove|ovima)?|druze|drugaric(a|e|i|om|ama))\b',text,re.UNICODE)
     prijatelj_all=re.findall(ur'\b(prijatelj(a|u|em|e|ima)?|prijateljic(a|u|e|i|om|ama))\b', text,re.UNICODE)
-    #new:
-    # prijatelj_all=re.findall(ur'\b(prijatelj(a|u|em|i|e|ima)?|prijateljic(a|u|e|i|om|ama))\b', text,re.UNICODE)
 
-    # prijatelji
 
     drug = [mymatch[0] for mymatch in drug_all]
     prijatelj = [mymatch[0] for mymatch in prijatelj_all]
@@ -403,8 +411,12 @@ def drug(text):
 # # – infinitive without ”i”
 #
 def inf_without_i(text):
+
   """return "inf without i" if infinitiv without -i ending and "inf with i" if infinitiv with -i ending,
    both if both and NA if none"""
+
+  # TODO if prev. token not prep like pred, na, po, etc.
+
   text = text.lower()
   distr_no_i,distr_i=[],[]
   for token in tokenize(text):
@@ -427,6 +439,7 @@ def inf_without_i(text):
 # #– synthetic future tense
 # #syntinfverbs
 #
+
 def synt_future(text):
   """return "synt inf" if syntetic infinitiv (uradicu), "nosynt inf" if analytic infinitiv (uradit cu),
   "both" if both and NA if none """
@@ -540,33 +553,33 @@ def inf_verb_ratio(text):
 #-------------------------------------------------------------------------------------
 ## To be considered in the next version!
 
-def budem(text):
-    budemlist=[u"budem", u"budeš", u"budes", u"bude", u"budemo",u"budete", u"budu"]
-    budemdistr=[]
-    for token in tokenize(text.lower()):
-        if token in budemlist:
-            budemdistr.append(budemlist[budemlist.index(token)])
-    if len(budemdistr)>0:
-        return (u"budem", budemdistr)
-    else:
-        return u"NA"
-
-
-def desiti(text):
-    distr_dog, distr_des=[],[]
-    for token in tokenize(text.lower()):
-        if token in dog:
-            distr_dog.append(token)
-        elif token in des:
-            distr_des.append(des)
-    if len(distr_dog)>0 and len(distr_des)>0:
-        return (u"both", distr_dog+distr_des)
-    elif len(distr_dog)>0:
-        return (u"dogoditi", distr_dog)
-    elif len(distr_des)>0:
-        return (u"desiti", distr_des)
-    else:
-        return "NA"
+# def budem(text):
+#     budemlist=[u"budem", u"budeš", u"budes", u"bude", u"budemo",u"budete", u"budu"]
+#     budemdistr=[]
+#     for token in tokenize(text.lower()):
+#         if token in budemlist:
+#             budemdistr.append(budemlist[budemlist.index(token)])
+#     if len(budemdistr)>0:
+#         return (u"budem", budemdistr)
+#     else:
+#         return u"NA"
+#
+#
+# def desiti(text):
+#     distr_dog, distr_des=[],[]
+#     for token in tokenize(text.lower()):
+#         if token in dog:
+#             distr_dog.append(token)
+#         elif token in des:
+#             distr_des.append(des)
+#     if len(distr_dog)>0 and len(distr_des)>0:
+#         return (u"both", distr_dog+distr_des)
+#     elif len(distr_dog)>0:
+#         return (u"dogoditi", distr_dog)
+#     elif len(distr_des)>0:
+#         return (u"desiti", distr_des)
+#     else:
+#         return "NA"
 
 
 #-------------------------------------------------------------------------------------
@@ -601,6 +614,15 @@ def highlight_var(myfunctionvalue,text):
 
 
 
+def replacetext(myfunc,mytext):
+    if not myfunc==u"NA":
+        mytext=highlight_var(myfunc[1], mytext)
+    else:
+        mytext=mytext
+    return  mytext
+
+
+
 t="\t"
 out=gzip.open('hrsrTweets.var.new.gz','w')
 out.write(t+t+t+t+t+t+t+"text meta"+t+"yat"+t+"k/h"+t+"h-drop"+t+"r/r-drop"+t
@@ -613,13 +635,6 @@ out.write(t+t+t+t+t+t+t+"text meta"+t+"yat"+t+"k/h"+t+"h-drop"+t+"r/r-drop"+t
               +"da pres"+t+"og/oga"+t+"irati/isati"+t
               +"irati/ovati"+t+"inf/verb ratio"+t
               +"sr cyrillic/mix cyrillic/latin"+"\n")
-
-def replacetext(myfunc,mytext):
-    if not myfunc==u"NA":
-        mytext=highlight_var(myfunc[1], mytext)
-    else:
-        mytext=mytext
-    return  mytext
 
 
 for line in gzip.open('hrsrTweets.gz'):
@@ -635,58 +650,13 @@ for line in gzip.open('hrsrTweets.gz'):
         text=replacetext(myfuncvar,text)
 
     myvariables = u"\t".join([returned[0] if type(returned)==tuple else u"NA" for returned in l])
+
     out.write(tid.encode("utf8")+"\t"+user.encode("utf8")+"\t"+time.encode("utf8")+"\t"+lang.encode("utf8")+"\t"
-              +lon.encode("utf8")+"\t"+lat.encode("utf8")+"\t"
-              +text.encode("utf8")+"\t"+clean_var.encode("utf8")+"\t"
-              +myvariables.encode("utf8")+"\n")
+             +lon.encode("utf8")+"\t"+lat.encode("utf8")+"\t"
+             +text.encode("utf8")+"\t"+clean_var.encode("utf8")+"\t"
+             +myvariables.encode("utf8")+"\n")
 out.close()
 
-# ## Left out +ao_o(text)
-# ## Left out +ist(text)
-
-## add hajde da
-#
-
-# def ao_o(text):
-#     #
-#     # Many false positivs:
-#
-#     # proble,: vi
-#     #pusto -> pustao, do->dao
-#   distr_o, distr_ao=defaultdict(int), defaultdict(int)
-#   for token in tokenize(text.lower()):
-#     if token.endswith("ao"):
-#         mod_token = remove_diacritics(token)
-#         if token in verbs_dict:
-#             distr_ao[token]+=1
-#     elif token.endswith("o"):
-#         mod_token = token[:-1]+"ao"
-#         dia_mod_token = remove_diacritics(mod_token)
-#         if dia_mod_token in verbs_dict:
-#             distr_o[dia_mod_token]+=1
-#   if len(distr_o) > 0 and len(distr_ao)>0:
-#       return "ao and o end"
-#   elif len(distr_o)>0:
-#       return "o end"
-#   elif len(distr_ao)>0:
-#       return "ao end"
-#   else:
-#       return "NA"
 
 
-# #vizazist/vizazista (false positivs alert: it always can be a genitiv)
-# def ist(text):
-#     distr_ist,distr_ista={},{}
-#     for token in tokenize(remove_diacritics(text).lower()):
-#         if token.endswith("ista"):
-#             if token[:-1] in ist_dict:
-#                 distr_ista[token]=1
-#         elif token.endswith("ist"):
-#             if token in ist_dict:
-#                 distr_ist[token]=1
-#     if len(distr_ist)==1:
-#         return "ist"
-#     elif len(distr_ista)==1:
-#         return "ista"
-#     else:
-#         return "NA"
+

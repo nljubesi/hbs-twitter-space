@@ -3,10 +3,6 @@
 import gzip
 
 
-# TODO:  check the tag of the considered token = tag of the mod token
-#vesti - veci
-
-# check the tag of the considered token = tag of the mod token
 
 lexicon_dirs='../../lexicons/apertium'
 yat=gzip.open('../custom-lexicons/yat-lexicon.gz','w')
@@ -17,21 +13,23 @@ st_c=gzip.open('../custom-lexicons/st-c-lexicon.gz','w')
 ir_is=gzip.open('../custom-lexicons/ir-is-lexicon.gz', 'w')
 ir_ov=gzip.open('../custom-lexicons/ir-ov-lexicon.gz', 'w')
 
-diftong_aueu_in_sr=gzip.open('../evaluation/eval-lexicons/diftong-aueu-in-sr.gz','w')
-no_h_drop_in_sr=gzip.open('../evaluation/eval-lexicons/no-h-drop-in-sr.gz','w')
-k_in_sr=gzip.open('../evaluation/eval-lexicons/k-in-sr.gz','w')
-c_in_sr=gzip.open('../evaluation/eval-lexicons/c-in-sr.gz','w')
-irati_in_sr=gzip.open('../evaluation/eval-lexicons/irati-in-sr.gz','w')
+## To check the lexicons:
+# yat_in_sr=gzip.open('../../lexicons/eval-lexicons/yat-in-sr.gz','w')
+# diftong_aueu_in_sr=gzip.open('../../lexicons/eval-lexicons/diftong-aueu-in-sr.gz','w')
+# no_h_drop_in_sr=gzip.open('../../lexicons/lexicons/eval-lexicons/no-h-drop-in-sr.gz','w')
+# k_in_sr=gzip.open('../../lexicons/eval-lexicons/k-in-sr.gz','w')
+# c_in_sr=gzip.open('../../lexicons/eval-lexicons/c-in-sr.gz','w')
+# irati_in_sr=gzip.open('../../lexicons/eval-lexicons/irati-in-sr.gz','w')
 
 
 ## Open dicts for preventing duplicates
 yat_dict, diftong_v_dict, h_drop_dict, k_h_dict, st_c_dict, ir_is_dict, ir_ov_dict = {},{},{},{},{},{},{}
 diftong_aueu_in_sr_dict, no_h_drop_in_sr_dict, k_in_sr_dict, c_in_sr_dict, irati_in_sr_dict ={},{},{},{},{}
 
-## Eventually for ist/ista feature (ex. vizazist/vizazista)
-# ist=gzip.open('custom-lexicons/apertium-ist-lexicon.gz','w')
 
-### up to date TODO idea: ITERATE LEMMAS (not tokens)
+possible_fp = open("possible-fp", "w")
+
+### up to date idea: ITERATE LEMMAS (not tokens)
 # AND IF CONDITION FULLFILLED, TAKE THE TOKEN: LESS WORK TO DO & LESS SUBSTITUTIONS
 ### to be decided after talking with Nikola and Filip
 
@@ -42,22 +40,43 @@ def remove_diacritics(token):
         result+=dia.get(char,char)
     return result
 
+some_possible_fp = [u"većina",u"veći",
+                    u"neuredno",u"neuredan",u"neurednost",u"preuredan",
+                   u"korist"]
+
+
+negation=[u"necu", u"neces", u"nece", u"necemo", u"necete"]
+e_ambiguity = [u"reko", u"reci"]
+je_ambiguity = [u"njega"]
+
+
+
 
 def makedicts(hrout, srout, mydict, diffdict, srlemmadict, hrlemmadict,mod_lemma):
+
+    # this condition would be neccessary, but serbian dicts also contain HR variations such as kaos etc.
+    #if lemma not in srlemmadict:
+
     if mod_lemma in srlemmadict:
+        # ex. if vest not in hr
         if mod_lemma not in hrlemmadict:
-            for mytoken in srlemmadict[mod_lemma]:
-                if mytoken not in hr:
-                    dia_token = remove_diacritics(mytoken)
-                    mydict[mytoken]=srout
-                    mydict[dia_token]=srout
-            for mytoken in hrlemmadict[lemma]:
-                if mytoken not in sr:
-                    dia_token = remove_diacritics(mytoken)
-                    mydict[mytoken]=hrout
-                    mydict[dia_token]=hrout
-                else:
-                    diffdict[mytoken]=1
+            # ex. for each declination of vest
+            if lemma not in some_possible_fp:
+
+                for mysrtoken in srlemmadict[mod_lemma]:
+                    if mysrtoken not in hr:
+                        dia_token = remove_diacritics(mysrtoken)
+                        mydict[mysrtoken]=srout
+                        mydict[dia_token]=srout
+                for myhrtoken in hrlemmadict[lemma]:
+                    if myhrtoken not in sr:
+                        dia_token = remove_diacritics(myhrtoken)
+                        mydict[myhrtoken]=hrout
+                        mydict[dia_token]=hrout
+                    else:
+                        diffdict[myhrtoken]=1
+            else:
+                possible_fp.write(lemma.encode("utf8")+"\t"+mod_lemma.encode("utf8")+"\n")
     return mydict
 
 log=open('log','w')
@@ -93,8 +112,7 @@ for line in gzip.open(lexicon_dirs+'/srLex_v1.0.gz'):
 log.write(repr(sr.items()[:10])+'\n')
 
 # The extraction of yat differs from the other extractions because
-# 1. yat reflex may be in the lemma but not in the changed word form
-# 2. in SR standard there is also IJE/JE whereas other variables are not standard
+# in SR standard there is also IJE/JE whereas other variables are not standard
 
 for index,token in enumerate(hr):
     if index%100==0:
@@ -102,34 +120,42 @@ for index,token in enumerate(hr):
     ijee=token.replace('ije','e')
     jee=token.replace('je','e')
     ijej=token.replace('ij','ej')
-    for mod_token in (ijee,jee,ijej):
+    io=token.replace('io','eo')
+
+    for mod_token in (ijee,jee,ijej,io):
         if token==mod_token:
             continue
         if mod_token in sr:
             log.write(repr('candidate '+token+' '+mod_token)+'\n')
             if len(hr[token].intersection(sr[mod_token]))>0:
-                if mod_token not in hr:
+                if mod_token not in hr :
                     log.write('not in hr\n')
                     dia_token=remove_diacritics(token)
                     dia_mod_token=remove_diacritics(mod_token)
-                    yat_dict[token]="je"
-                    yat_dict[mod_token]="e"
-                    yat_dict[dia_token]="je"
-                    yat_dict[dia_mod_token]="e"
+                    if token not in je_ambiguity:
+                        yat_dict[token]="je"
+                    if token not in e_ambiguity:
+                        yat_dict[mod_token]="e"
+                    if dia_token not in je_ambiguity:
+                        yat_dict[dia_token]="je"
+
+                    if dia_mod_token not in negation:
+                        if dia_mod_token not in e_ambiguity:
+                            yat_dict[dia_mod_token]="e"
 
 
-
-    ## get the stem if croatian lemma ends with -irati and if it's longer than 7 characters
-    ##  (arbitrary value to avoid false positivs)
-    ## if the same stem is present in serbian Apertium with the ending -ovati,
-    ## write the stem in the output list (without diactritics)
 
 for lemma in hr_lemma:
+
     if lemma.endswith("irati") and len(lemma)>7:
 
-        #TODO exceptions: kvalifikovati - kvalificirati
-        mod_lemma_ovati = lemma[:-5]+"ovati"
         mod_lemma_isati = lemma[:-5]+"isati"
+        #exceptions: kvalifikovati - kvalificirati
+        if lemma.endswith("cirati"):
+            mod_lemma_ovati = lemma[:-6]+"kovati"
+        else:
+            mod_lemma_ovati = lemma[:-5]+"ovati"
+
         makedicts("irati", "ovati", ir_ov_dict, irati_in_sr_dict, sr_lemma, hr_lemma,mod_lemma_ovati)
         makedicts("irati", "isati", ir_is_dict, irati_in_sr_dict, sr_lemma, hr_lemma,mod_lemma_isati)
 
@@ -170,17 +196,12 @@ writeinfile(st_c_dict,st_c)
 writeinfile(ir_is_dict,ir_is)
 writeinfile(ir_ov_dict,ir_ov)
 
+## To check the lexicons:
 
-writediff(diftong_aueu_in_sr_dict,diftong_aueu_in_sr)
-writediff(no_h_drop_in_sr_dict,no_h_drop_in_sr)
-writediff(k_in_sr_dict,k_in_sr)
-writediff(c_in_sr_dict,c_in_sr)
-writediff(irati_in_sr_dict,irati_in_sr)
+# writediff(yat_in_sr_dict, yat_in_sr_dict)
+# writediff(diftong_aueu_in_sr_dict,diftong_aueu_in_sr)
+# writediff(no_h_drop_in_sr_dict,no_h_drop_in_sr)
+# writediff(k_in_sr_dict,k_in_sr)
+# writediff(c_in_sr_dict,c_in_sr)
+# writediff(irati_in_sr_dict,irati_in_sr)
 
-## eventually  for creating -ist lexicon (vizazist)
-## problem: false positivs
-
-#if tag == u"Ncmsn" and token.endswith(u"ist"):
-#dia_token=remove_diacritics(token)
-#if dia_token!=token:
-#    ist.write(dia_token.encode('utf8')+'\n')

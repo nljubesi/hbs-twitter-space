@@ -46,8 +46,8 @@ custom-lexicons/ -- contains customized lexicons needed for extraction of lingui
 
 scripts/ -- contains scripts for extracting customized lexicons
 
-* extract_discr_lexicons.py -- extracts customized lexicons for discriminative features (either "HR" or "SR")
-* extract_not_discr_lexicons.py -- extracts customized lexicons for non-discriminative features (list may contain same items for "SR" and "HR")
+* extract-discr-lexicons.py -- extracts customized lexicons for discriminative features (either "HR" or "SR")
+* extract-not-discr-lexicons.py -- extracts customized lexicons for non-discriminative features (list may contain same items for "SR" and "HR")
 
 evaluation/ -- contains evaluation tables for each linguistic variable extracted with extract_variables.py
 
@@ -59,12 +59,12 @@ Calling the scripts
 
 For extracting the linguistic variables:
 
-* $ python extract_variables.py
+* $ python extract-variables.py
 
 For creating customized lexicons:
 
-* $ python extract_discr_lexicons.py
-* $ python extract_not_discr_lexicons.py
+* $ python extract-discr-lexicons.py
+* $ python extract-not-discr-lexicons.py
 
 
 Contact
