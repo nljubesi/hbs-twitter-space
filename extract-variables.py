@@ -624,17 +624,17 @@ def replacetext(myfunc,mytext):
 
 
 t="\t"
-out=gzip.open('hrsrTweets.var.new.gz','w')
-out.write(t+t+t+t+t+t+t+"text meta"+t+"yat"+t+"k/h"+t+"h-drop"+t+"r/r-drop"+t
-              +"št/ć"+t+"č dev/ć dev"+t+"eu/au/ ev/av"+t
-              +"sa dev/s dev"+t+"tko/ko"+t+"šta/što"+t+"da li/je li"+t
-              +"usprkos/uprkos/unatoč"+t+"bre/bolan/ba"+t+"mnogo/puno/vrlo/jako"+t
-              +"HR months/international months"+t+"tjedan/nedjelja/nedelja/sedmica"+t
-              +"drug/prijatelj (m/f)"+t+"treba da/trebaXXX da"+t
-              +"inf with -i/inf without -i"+t+"synt. future/no synt. future"+t+"'da' in text"+t
-              +"da pres"+t+"og/oga"+t+"irati/isati"+t
-              +"irati/ovati"+t+"inf/verb ratio"+t
-              +"sr cyrillic/mix cyrillic/latin"+"\n")
+out=gzip.open('hrsrTweets.var.gz','w')
+out.write('tid'+t+'user'+t+'time'+t+'lang'+t+'lon'+t+'lat'+t+'text'+t+"text_meta"+t+"yat"+t+"kh"+t+"hdrop"+t+"rdrop"+t
+              +"st_c"+t+"c_ch"+t+"diftong"+t
+              +"sa_s"+t+"tko_ko"+t+"sta_sto"+t+"da_je_li"+t
+              +"usprkos"+t+"bre"+t+"mnogo"+t
+              +"months"+t+"tjedan"+t
+              +"drug"+t+"treba_da"+t
+              +"inf_without_i"+t+"synt_future"+t+"da"+t
+              +"da_present"+t+"genitiva"+t+"ir_is"+t
+              +"ir_ov"+t+"inf_verb_ratio"+t
+              +"cyrillic"+"\n")
 
 
 for line in gzip.open('hrsrTweets.gz'):
@@ -656,7 +656,3 @@ for line in gzip.open('hrsrTweets.gz'):
              +text.encode("utf8")+"\t"+clean_var.encode("utf8")+"\t"
              +myvariables.encode("utf8")+"\n")
 out.close()
-
-
-
-
