@@ -37,8 +37,8 @@ genitiv_og_dict={genitiv_og.rstrip("\n").decode("utf8"):1 for genitiv_og in gzip
 intmonths={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/int-months.gz')}
 hrmonths={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/hr-months.gz')}
 
-# dog={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/dogoditi-dogadjati.gz')}
-# des={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/desiti-desavati.gz')}
+dog={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/dogoditi-dogadjati.gz')}
+des={x.rstrip("\n").decode("utf8"):1 for x in gzip.open('custom-lexicons/desiti-desavati.gz')}
 
 
 
@@ -553,33 +553,58 @@ def inf_verb_ratio(text):
 #-------------------------------------------------------------------------------------
 ## To be considered in the next version!
 
-# def budem(text):
-#     budemlist=[u"budem", u"budeš", u"budes", u"bude", u"budemo",u"budete", u"budu"]
-#     budemdistr=[]
-#     for token in tokenize(text.lower()):
-#         if token in budemlist:
-#             budemdistr.append(budemlist[budemlist.index(token)])
-#     if len(budemdistr)>0:
-#         return (u"budem", budemdistr)
-#     else:
-#         return u"NA"
-#
-#
-# def desiti(text):
-#     distr_dog, distr_des=[],[]
-#     for token in tokenize(text.lower()):
-#         if token in dog:
-#             distr_dog.append(token)
-#         elif token in des:
-#             distr_des.append(des)
-#     if len(distr_dog)>0 and len(distr_des)>0:
-#         return (u"both", distr_dog+distr_des)
-#     elif len(distr_dog)>0:
-#         return (u"dogoditi", distr_dog)
-#     elif len(distr_des)>0:
-#         return (u"desiti", distr_des)
-#     else:
-#         return "NA"
+def budem(text):
+    budemlist=[u"budem", u"budeš", u"budes", u"bude", u"budemo",u"budete", u"budu"]
+    budemdistr=[]
+    for token in tokenize(text.lower()):
+        if token in budemlist:
+            budemdistr.append(token)
+        #else:
+        #    return u"NA"
+            #budemdistr.append(budemlist[budemlist.index(token)])
+
+    if len(budemdistr)>0:
+        return (u"-budem-", budemdistr)
+    else:
+        return u"NA"
+
+
+def desiti(text):
+    distr_dog, distr_des=[],[]
+    for token in tokenize(text.lower()):
+        if token in dog:
+            distr_dog.append(token)
+        elif token in des:
+            distr_des.append(token)
+        else:
+            return u"NA"
+
+    if len(distr_dog)>0 and len(distr_des)>0:
+        return (u"both", distr_dog+distr_des)
+    elif len(distr_dog)>0:
+        return (u"-dogoditi-", distr_dog)
+    elif len(distr_des)>0:
+        return (u"-desiti-", distr_des)
+    else:
+        return u"NA"
+
+def hjeti_hdrop_present(text):
+    distr_drop, distr_nodrop=[],[]
+    htjeti_hdrops=[u"ocu", u"oces", u"oce", u"ocemo", u"ocete", u"oću", u"oćes", u"oće", u"oćemo", u"oćete"]
+    htjeti_no_hdrop=[u"hocu", u"hoces", u"hoce", u"hocemo", u"hocete", u"hoću", u"hoćes", u"hoće", u"hoćemo", u"hoćete"]
+    for mytoken in tokenize(text.lower()):
+        if mytoken in htjeti_hdrops:
+            distr_drop.append(mytoken)
+        if mytoken in htjeti_no_hdrop:
+            distr_nodrop.append(mytoken)
+
+
+    if len(distr_drop)>0 and len(distr_nodrop)>0:
+        return (u"both", distr_drop+distr_nodrop)
+    elif len(distr_drop)>0:
+        return (u"hdrop-htjeti", distr_drop)
+    else:
+        return u"NA"
 
 
 #-------------------------------------------------------------------------------------
@@ -622,7 +647,6 @@ def replacetext(myfunc,mytext):
     return  mytext
 
 
-
 t="\t"
 out=gzip.open('hrsrTweets.var.new.gz','w')
 out.write(t+t+t+t+t+t+t+"text meta"+t+"yat"+t+"k/h"+t+"h-drop"+t+"r/r-drop"+t
@@ -634,23 +658,28 @@ out.write(t+t+t+t+t+t+t+"text meta"+t+"yat"+t+"k/h"+t+"h-drop"+t+"r/r-drop"+t
               +"inf with -i/inf without -i"+t+"synt. future/no synt. future"+t+"'da' in text"+t
               +"da pres"+t+"og/oga"+t+"irati/isati"+t
               +"irati/ovati"+t+"inf/verb ratio"+t
-              +"sr cyrillic/mix cyrillic/latin"+"\n")
+              +"sr cyrillic/mix cyrillic/latin"+"\n") #+t+"budem"+t+"desiti/dogoditi"+"htjeti bez h"
 
 
 for line in gzip.open('hrsrTweets.gz'):
     tid,user,time,lang,lon,lat,text=line[:-1].decode('utf8').split('\t')
+    #l = [budem(text), desiti(text),hjeti_hdrop_present(text)] #desiti(text), desiti(text),
+    #print text.encode("utf8"),  budem(text)[0]
+    #text=replacetext(budem(text),text)
+    #print text.encode("utf8")
 
     clean_var=clean(text,lang)
-
+#
     l=[yat(text),kh(text),hdrop(text),rdrop(text),st_c(text),c_ch(text),diftong(text),sa_s(text),tko_ko(text),sta_sto(text),
     da_je_li(text),usprkos(text),bre(text),mnogo(text),months(text),tjedan(text),drug(text),treba_da(text),inf_without_i(text),
-    synt_future(text),da(text),da_present(text),genitiva(text),ir_is(text),ir_ov(text),inf_verb_ratio(text),cyrillic(text)]
+    synt_future(text),da(text),da_present(text),genitiva(text),ir_is(text),ir_ov(text),inf_verb_ratio(text),cyrillic(text)] # budem(text), desiti(text), hjeti_hdrop_present(text)
 
     for myfuncvar in l:
         text=replacetext(myfuncvar,text)
-
+#
     myvariables = u"\t".join([returned[0] if type(returned)==tuple else u"NA" for returned in l])
-
+    #print text.encode("utf8")+"\t"+myvariables.encode("utf8")
+#
     out.write(tid.encode("utf8")+"\t"+user.encode("utf8")+"\t"+time.encode("utf8")+"\t"+lang.encode("utf8")+"\t"
              +lon.encode("utf8")+"\t"+lat.encode("utf8")+"\t"
              +text.encode("utf8")+"\t"+clean_var.encode("utf8")+"\t"
@@ -658,5 +687,15 @@ for line in gzip.open('hrsrTweets.gz'):
 out.close()
 
 
+# error message
 
-
+# Traceback (most recent call last):
+#   File "extract-variables.py", line 673, in <module>
+#     text=replacetext(myfuncvar,text)
+#   File "extract-variables.py", line 638, in replacetext
+#     mytext=highlight_var(myfunc[1], mytext)
+#   File "extract-variables.py", line 631, in highlight_var
+#     text = re.sub(ur'\b'+re.escape(word)+ur'\b', u'__'+word+u'__', text, re.UNICODE)
+#   File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py", line 214, in escape
+#     return pattern[:0].join(s)
+# TypeError: unhashable type
