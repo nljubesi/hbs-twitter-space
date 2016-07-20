@@ -687,15 +687,3 @@ for line in gzip.open('hrsrTweets.gz'):
 out.close()
 
 
-# error message
-
-# Traceback (most recent call last):
-#   File "extract-variables.py", line 673, in <module>
-#     text=replacetext(myfuncvar,text)
-#   File "extract-variables.py", line 638, in replacetext
-#     mytext=highlight_var(myfunc[1], mytext)
-#   File "extract-variables.py", line 631, in highlight_var
-#     text = re.sub(ur'\b'+re.escape(word)+ur'\b', u'__'+word+u'__', text, re.UNICODE)
-#   File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py", line 214, in escape
-#     return pattern[:0].join(s)
-# TypeError: unhashable type
