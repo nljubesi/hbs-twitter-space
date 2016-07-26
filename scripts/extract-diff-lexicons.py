@@ -18,7 +18,6 @@ ka_ica=gzip.open('../custom-lexicons/ka-ica-lexicon.gz', 'w')
 ac_telj=gzip.open('../custom-lexicons/lac-telj-lexicon.gz', 'w')
 
 ## To check the lexicons:
-# yat_in_sr=gzip.open('../../lexicons/eval-lexicons/yat-in-sr.gz','w')
 # diftong_aueu_in_sr=gzip.open('../../lexicons/eval-lexicons/diftong-aueu-in-sr.gz','w')
 # no_h_drop_in_sr=gzip.open('../../lexicons/lexicons/eval-lexicons/no-h-drop-in-sr.gz','w')
 # k_in_sr=gzip.open('../../lexicons/eval-lexicons/k-in-sr.gz','w')
@@ -219,12 +218,11 @@ writeinfile(ka_ica_dict,ka_ica)
 writeinfile(ac_telj_dict,ac_telj)
 
 
-## To check the lexicons:
+## To check the lexicons (what does not belong in which lexicon):
 
-# writediff(yat_in_sr_dict, yat_in_sr_dict)
-# writediff(diftong_aueu_in_sr_dict,diftong_aueu_in_sr)
-# writediff(no_h_drop_in_sr_dict,no_h_drop_in_sr)
-# writediff(k_in_sr_dict,k_in_sr)
-# writediff(c_in_sr_dict,c_in_sr)
-# writediff(irati_in_sr_dict,irati_in_sr)
+#writediff(diftong_aueu_in_sr_dict,diftong_aueu_in_sr)
+#writediff(no_h_drop_in_sr_dict,no_h_drop_in_sr)
+#writediff(k_in_sr_dict,k_in_sr)
+#writediff(c_in_sr_dict,c_in_sr)
+#writediff(irati_in_sr_dict,irati_in_sr)
 
